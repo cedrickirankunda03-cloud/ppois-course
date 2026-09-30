@@ -1,0 +1,9 @@
+PROJECT_NAME           = "English-Russian Dictionary"
+OUTPUT_DIRECTORY       = docs
+INPUT                  = Dictionary.h Dictionary.cpp
+RECURSIVE              = NO
+EXTRACT_ALL            = YES
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+QUIET                  = NO
+WARN_IF_UNDOCUMENTED   = YES

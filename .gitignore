@@ -20,4 +20,13 @@ CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
 Makefile
-compile_commands.json
+compile_commands.json*.exe
+*.exe
+*.pdb
+*.ilk
+CoverageReport-*/
+docs/
+docs/
+test_output.txt
+empty_dictionary.txt
+LastCoverageResults.log
