@@ -9,6 +9,8 @@ obj/
 *.dll
 *.so
 *.a
+*.pdb
+*.ilk
 
 .vscode/
 .vs/
@@ -20,12 +22,11 @@ CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
 Makefile
-compile_commands.json*.exe
-*.exe
-*.pdb
-*.ilk
+compile_commands.json
+
+CoverageReport/
 CoverageReport-*/
-docs/
+
 docs/
 test_output.txt
 empty_dictionary.txt

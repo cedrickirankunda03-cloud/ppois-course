@@ -1,24 +1,25 @@
 #include "Dictionary.h"
-#include <cassert>
+#include <gtest/gtest.h>
 #include <iostream>
 #include <sstream>
 
 using namespace std;
 
-void testInsertAndSearch()
+
+TEST(DictionaryTest, InsertAndSearch)
 {
     Dictionary dictionary;
 
     dictionary.insert("apple", "яблоко");
     dictionary.insert("cat", "кошка");
 
-    assert(dictionary.search("apple") == "яблоко");
-    assert(dictionary.search("cat") == "кошка");
-    assert(dictionary.search("dog") == "word not found");
+    EXPECT_EQ(dictionary.search("apple"), "яблоко");
+    EXPECT_EQ(dictionary.search("cat"), "кошка");
+    EXPECT_EQ(dictionary.search("dog"), "word not found");
 }
 
-// NEW: Test search through multiple tree levels
-void testSearchTreePaths()
+
+TEST(DictionaryTest, SearchTreePaths)
 {
     Dictionary dictionary;
 
@@ -27,12 +28,13 @@ void testSearchTreePaths()
     dictionary.insert("elephant", "слон");
     dictionary.insert("apple", "яблоко");
 
-    assert(dictionary.search("apple") == "яблоко");
-    assert(dictionary.search("elephant") == "слон");
-    assert(dictionary.search("house") == "word not found");
+    EXPECT_EQ(dictionary.search("apple"), "яблоко");
+    EXPECT_EQ(dictionary.search("elephant"), "слон");
+    EXPECT_EQ(dictionary.search("house"), "word not found");
 }
 
-void testPlusEqual()
+
+TEST(DictionaryTest, PlusEqual)
 {
     Dictionary dictionary;
 
@@ -43,13 +45,14 @@ void testPlusEqual()
 
     dictionary += "apple";
 
-    assert(dictionary.size() == 1);
-    assert(dictionary.search("apple") == "яблоко");
+    EXPECT_EQ(dictionary.size(), 1);
+    EXPECT_EQ(dictionary.search("apple"), "яблоко");
 
     cin.rdbuf(originalBuffer);
 }
 
-void testCStringPlusEqual()
+
+TEST(DictionaryTest, CStringPlusEqual)
 {
     Dictionary dictionary;
 
@@ -62,35 +65,36 @@ void testCStringPlusEqual()
 
     dictionary += word;
 
-    assert(dictionary.size() == 1);
-    assert(dictionary.search("dog") == "собака");
+    EXPECT_EQ(dictionary.size(), 1);
+    EXPECT_EQ(dictionary.search("dog"), "собака");
 
     cin.rdbuf(originalBuffer);
 }
 
-void testBracketOperator()
+
+TEST(DictionaryTest, BracketOperator)
 {
     Dictionary dictionary;
 
     dictionary.insert("apple", "яблоко");
 
-    assert(dictionary["apple"] == "яблоко");
+    EXPECT_EQ(dictionary["apple"], "яблоко");
 
     dictionary["apple"] = "новое_слово";
 
-    assert(dictionary["apple"] == "новое_слово");
+    EXPECT_EQ(dictionary["apple"], "новое_слово");
 }
 
-// NEW: Test missing word with [] operator
-void testBracketOperatorMissingWord()
+
+TEST(DictionaryTest, BracketOperatorMissingWord)
 {
     Dictionary dictionary;
 
-    assert(dictionary["house"] == "word not found");
+    EXPECT_EQ(dictionary["house"], "word not found");
 }
 
-// NEW: Test [] operator through multiple tree levels
-void testBracketOperatorPaths()
+
+TEST(DictionaryTest, BracketOperatorPaths)
 {
     Dictionary dictionary;
 
@@ -99,11 +103,12 @@ void testBracketOperatorPaths()
     dictionary.insert("elephant", "слон");
     dictionary.insert("apple", "яблоко");
 
-    assert(dictionary["apple"] == "яблоко");
-    assert(dictionary["elephant"] == "слон");
+    EXPECT_EQ(dictionary["apple"], "яблоко");
+    EXPECT_EQ(dictionary["elephant"], "слон");
 }
 
-void testRemove()
+
+TEST(DictionaryTest, Remove)
 {
     Dictionary dictionary;
 
@@ -113,24 +118,26 @@ void testRemove()
 
     dictionary -= "cat";
 
-    assert(dictionary.search("cat") == "word not found");
-    assert(dictionary.size() == 2);
+    EXPECT_EQ(dictionary.search("cat"), "word not found");
+    EXPECT_EQ(dictionary.size(), 2);
 }
 
-void testSize()
+
+TEST(DictionaryTest, Size)
 {
     Dictionary dictionary;
 
-    assert(dictionary.size() == 0);
+    EXPECT_EQ(dictionary.size(), 0);
 
     dictionary.insert("apple", "яблоко");
     dictionary.insert("cat", "кошка");
     dictionary.insert("dog", "собака");
 
-    assert(dictionary.size() == 3);
+    EXPECT_EQ(dictionary.size(), 3);
 }
 
-void testCopyConstructor()
+
+TEST(DictionaryTest, CopyConstructor)
 {
     Dictionary dictionary;
 
@@ -139,26 +146,27 @@ void testCopyConstructor()
 
     Dictionary copy(dictionary);
 
-    assert(copy == dictionary);
+    EXPECT_TRUE(copy == dictionary);
 
     copy["apple"] = "новое_слово";
 
-    assert(dictionary["apple"] == "яблоко");
-    assert(copy["apple"] == "новое_слово");
+    EXPECT_EQ(dictionary["apple"], "яблоко");
+    EXPECT_EQ(copy["apple"], "новое_слово");
 }
 
-// NEW: Test copying an empty dictionary
-void testCopyEmptyDictionary()
+
+TEST(DictionaryTest, CopyEmptyDictionary)
 {
     Dictionary dictionary;
 
     Dictionary copy(dictionary);
 
-    assert(copy.size() == 0);
-    assert(copy == dictionary);
+    EXPECT_EQ(copy.size(), 0);
+    EXPECT_TRUE(copy == dictionary);
 }
 
-void testAssignmentOperator()
+
+TEST(DictionaryTest, AssignmentOperator)
 {
     Dictionary dictionary;
 
@@ -169,16 +177,16 @@ void testAssignmentOperator()
 
     copy = dictionary;
 
-    assert(copy == dictionary);
+    EXPECT_TRUE(copy == dictionary);
 
     copy["apple"] = "новое_слово";
 
-    assert(dictionary["apple"] == "яблоко");
-    assert(copy["apple"] == "новое_слово");
+    EXPECT_EQ(dictionary["apple"], "яблоко");
+    EXPECT_EQ(copy["apple"], "новое_слово");
 }
 
-// NEW: Test assignment from an empty dictionary
-void testAssignmentEmptyDictionary()
+
+TEST(DictionaryTest, AssignmentEmptyDictionary)
 {
     Dictionary dictionary;
 
@@ -188,11 +196,12 @@ void testAssignmentEmptyDictionary()
 
     dictionary = empty;
 
-    assert(dictionary.size() == 0);
-    assert(dictionary == empty);
+    EXPECT_EQ(dictionary.size(), 0);
+    EXPECT_TRUE(dictionary == empty);
 }
 
-void testEquality()
+
+TEST(DictionaryTest, Equality)
 {
     Dictionary first;
     Dictionary second;
@@ -200,17 +209,17 @@ void testEquality()
     first.insert("apple", "яблоко");
     second.insert("apple", "яблоко");
 
-    assert(first == second);
-    assert(!(first != second));
+    EXPECT_TRUE(first == second);
+    EXPECT_FALSE(first != second);
 
     second["apple"] = "другое_слово";
 
-    assert(first != second);
-    assert(!(first == second));
+    EXPECT_TRUE(first != second);
+    EXPECT_FALSE(first == second);
 }
 
-// NEW: Test different tree structures
-void testDifferentTreeStructure()
+
+TEST(DictionaryTest, DifferentTreeStructure)
 {
     Dictionary first;
     Dictionary second;
@@ -220,32 +229,34 @@ void testDifferentTreeStructure()
     second.insert("apple", "яблоко");
     second.insert("cat", "кошка");
 
-    assert(first != second);
-    assert(!(first == second));
+    EXPECT_TRUE(first != second);
+    EXPECT_FALSE(first == second);
 }
 
-void testLoadFromFile()
+
+TEST(DictionaryTest, LoadFromFile)
 {
     Dictionary dictionary;
 
-    assert(dictionary.loadFromFile("dictionary.txt"));
+    EXPECT_TRUE(dictionary.loadFromFile("dictionary.txt"));
 
-    assert(dictionary.search("apple") == "яблоко");
-    assert(dictionary.search("cat") == "кошка");
+    EXPECT_EQ(dictionary.search("apple"), "яблоко");
+    EXPECT_EQ(dictionary.search("cat"), "кошка");
 }
 
-void testSaveToFile()
+
+TEST(DictionaryTest, SaveToFile)
 {
     Dictionary dictionary;
 
     dictionary.insert("apple", "яблоко");
     dictionary.insert("cat", "кошка");
 
-    assert(dictionary.saveToFile("test_output.txt"));
+    EXPECT_TRUE(dictionary.saveToFile("test_output.txt"));
 }
 
-// NEW: Test different removal cases
-void testRemoveDifferentCases()
+
+TEST(DictionaryTest, RemoveDifferentCases)
 {
     // Leaf node
     Dictionary leaf;
@@ -255,7 +266,8 @@ void testRemoveDifferentCases()
 
     leaf -= "cat";
 
-    assert(leaf.search("cat") == "word not found");
+    EXPECT_EQ(leaf.search("cat"), "word not found");
+
 
     // Node with one child
     Dictionary oneChild;
@@ -265,8 +277,9 @@ void testRemoveDifferentCases()
 
     oneChild -= "dog";
 
-    assert(oneChild.search("dog") == "word not found");
-    assert(oneChild.search("elephant") == "слон");
+    EXPECT_EQ(oneChild.search("dog"), "word not found");
+    EXPECT_EQ(oneChild.search("elephant"), "слон");
+
 
     // Node with two children
     Dictionary twoChildren;
@@ -277,15 +290,15 @@ void testRemoveDifferentCases()
 
     twoChildren -= "dog";
 
-    assert(twoChildren.search("dog") == "word not found");
-    assert(twoChildren.size() == 2);
+    EXPECT_EQ(twoChildren.search("dog"), "word not found");
+    EXPECT_EQ(twoChildren.size(), 2);
 
     // Word does not exist
     twoChildren -= "house";
 }
 
-// NEW: Test two-child removal with deeper successor
-void testRemoveWithDeepSuccessor()
+
+TEST(DictionaryTest, RemoveWithDeepSuccessor)
 {
     Dictionary dictionary;
 
@@ -296,15 +309,15 @@ void testRemoveWithDeepSuccessor()
 
     dictionary -= "dog";
 
-    assert(dictionary.search("dog") == "word not found");
-    assert(dictionary.search("bear") == "медведь");
-    assert(dictionary.search("cat") == "кошка");
-    assert(dictionary.search("elephant") == "слон");
-    assert(dictionary.size() == 3);
+    EXPECT_EQ(dictionary.search("dog"), "word not found");
+    EXPECT_EQ(dictionary.search("bear"), "медведь");
+    EXPECT_EQ(dictionary.search("cat"), "кошка");
+    EXPECT_EQ(dictionary.search("elephant"), "слон");
+    EXPECT_EQ(dictionary.size(), 3);
 }
 
-// NEW: Test removing the only node
-void testRemoveOnlyNode()
+
+TEST(DictionaryTest, RemoveOnlyNode)
 {
     Dictionary dictionary;
 
@@ -312,34 +325,34 @@ void testRemoveOnlyNode()
 
     dictionary -= "apple";
 
-    assert(dictionary.size() == 0);
-    assert(dictionary.search("apple") == "word not found");
+    EXPECT_EQ(dictionary.size(), 0);
+    EXPECT_EQ(dictionary.search("apple"), "word not found");
 }
 
-// NEW: Test duplicate word
-void testDuplicateWord()
+
+TEST(DictionaryTest, DuplicateWord)
 {
     Dictionary dictionary;
 
     dictionary.insert("apple", "яблоко");
     dictionary.insert("apple", "другое");
 
-    assert(dictionary.size() == 1);
-    assert(dictionary.search("apple") == "яблоко");
+    EXPECT_EQ(dictionary.size(), 1);
+    EXPECT_EQ(dictionary.search("apple"), "яблоко");
 }
 
-// NEW: Test empty dictionary
-void testEmptyDictionary()
+
+TEST(DictionaryTest, EmptyDictionary)
 {
     Dictionary dictionary;
 
     dictionary.display();
 
-    assert(dictionary.size() == 0);
+    EXPECT_EQ(dictionary.size(), 0);
 }
 
-// NEW: Test displaying a non-empty dictionary
-void testDisplay()
+
+TEST(DictionaryTest, Display)
 {
     Dictionary dictionary;
 
@@ -348,37 +361,43 @@ void testDisplay()
 
     dictionary.display();
 
-    assert(dictionary.size() == 2);
+    EXPECT_EQ(dictionary.size(), 2);
 }
 
-// NEW: Test missing file
-void testMissingFile()
+
+TEST(DictionaryTest, MissingFile)
 {
     Dictionary dictionary;
 
-    assert(dictionary.loadFromFile("file_that_does_not_exist.txt") == false);
+    EXPECT_FALSE(
+        dictionary.loadFromFile("file_that_does_not_exist.txt")
+    );
 }
 
-// NEW: Test saving an empty dictionary
-void testSaveEmptyDictionary()
+
+TEST(DictionaryTest, SaveEmptyDictionary)
 {
     Dictionary dictionary;
 
-    assert(dictionary.saveToFile("empty_dictionary.txt"));
+    EXPECT_TRUE(
+        dictionary.saveToFile("empty_dictionary.txt")
+    );
 }
 
-// NEW: Test saving to an invalid path
-void testSaveInvalidFile()
+
+TEST(DictionaryTest, SaveInvalidFile)
 {
     Dictionary dictionary;
 
     dictionary.insert("apple", "яблоко");
 
-    assert(dictionary.saveToFile("Z:\\invalid_folder\\test.txt") == false);
+    EXPECT_FALSE(
+        dictionary.saveToFile("Z:\\invalid_folder\\test.txt")
+    );
 }
 
-// NEW: Test self-assignment
-void testSelfAssignment()
+
+TEST(DictionaryTest, SelfAssignment)
 {
     Dictionary dictionary;
 
@@ -386,55 +405,5 @@ void testSelfAssignment()
 
     dictionary = dictionary;
 
-    assert(dictionary.search("apple") == "яблоко");
-}
-
-int main()
-{
-    testInsertAndSearch();
-
-    // NEW
-    testSearchTreePaths();
-
-    testPlusEqual();
-    testCStringPlusEqual();
-    testBracketOperator();
-    testBracketOperatorMissingWord();
-
-    // NEW
-    testBracketOperatorPaths();
-
-    testRemove();
-    testSize();
-    testCopyConstructor();
-    testCopyEmptyDictionary();
-    testAssignmentOperator();
-    testAssignmentEmptyDictionary();
-    testEquality();
-    testDifferentTreeStructure();
-    testLoadFromFile();
-    testSaveToFile();
-    testRemoveDifferentCases();
-    testRemoveWithDeepSuccessor();
-
-    // NEW
-    testRemoveOnlyNode();
-
-    testDuplicateWord();
-    testEmptyDictionary();
-
-    // NEW
-    testDisplay();
-
-    testMissingFile();
-
-    // NEW
-    testSaveEmptyDictionary();
-    testSaveInvalidFile();
-
-    testSelfAssignment();
-
-    cout << "All tests passed successfully!" << endl;
-
-    return 0;
+    EXPECT_EQ(dictionary.search("apple"), "яблоко");
 }
