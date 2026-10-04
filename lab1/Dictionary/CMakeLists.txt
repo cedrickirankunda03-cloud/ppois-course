@@ -20,3 +20,5 @@ add_executable(DictionaryTests
 target_link_libraries(DictionaryTests
     GTest::gtest_main
 )
+
+set_target_properties(DictionaryTests PROPERTIES LINK_FLAGS "/PROFILE")
