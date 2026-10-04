@@ -1,38 +1,54 @@
 #include "Dictionary.h"
 #include <iostream>
+#include <fstream>
+#include <windows.h>
 
 using namespace std;
+
+// Convert UTF-8 string to Windows Unicode
+static wstring dictionaryUtf8ToWide(const string& text)
+{
+    if (text.empty())
+    {
+        return L"";
+    }
+
+    int size = MultiByteToWideChar(
+        CP_UTF8,
+        0,
+        text.c_str(),
+        -1,
+        nullptr,
+        0
+    );
+
+    wstring result(size - 1, L'\0');
+
+    MultiByteToWideChar(
+        CP_UTF8,
+        0,
+        text.c_str(),
+        -1,
+        &result[0],
+        size
+    );
+
+    return result;
+}
 
 Dictionary::Dictionary()
 {
     root = nullptr;
 }
 
-// NEW
-Dictionary::Dictionary(const Dictionary& other)
-{
-    root = copyTree(other.root);
-}
-
-// NEW
-Dictionary& Dictionary::operator=(const Dictionary& other)
-{
-    if (this != &other)
-    {
-        deleteTree(root);
-        root = copyTree(other.root);
-    }
-
-    return *this;
-}
-
-// NEW
 Dictionary::~Dictionary()
 {
     deleteTree(root);
 }
 
-Node* Dictionary::createNode(string english, string russian)
+Dictionary::Node* Dictionary::createNode(
+    const string& english,
+    const string& russian)
 {
     Node* newNode = new Node;
 
@@ -44,64 +60,26 @@ Node* Dictionary::createNode(string english, string russian)
     return newNode;
 }
 
-// NEW
-Node* Dictionary::copyTree(Node* current)
+void Dictionary::deleteTree(Node* node)
 {
-    if (current == nullptr)
+    if (node == nullptr)
     {
-        return nullptr;
+        return;
     }
 
-    Node* newNode = createNode(current->english, current->russian);
+    deleteTree(node->left);
+    deleteTree(node->right);
 
-    newNode->left = copyTree(current->left);
-    newNode->right = copyTree(current->right);
-
-    return newNode;
+    delete node;
 }
 
-// NEW
-bool Dictionary::compareTrees(Node* first, Node* second) const
+void Dictionary::insert(
+    const string& english,
+    const string& russian)
 {
-    if (first == nullptr && second == nullptr)
-    {
-        return true;
-    }
-
-    if (first == nullptr || second == nullptr)
-    {
-        return false;
-    }
-
-    if (first->english != second->english ||
-        first->russian != second->russian)
-    {
-        return false;
-    }
-
-    return compareTrees(first->left, second->left) &&
-           compareTrees(first->right, second->right);
-}
-
-// NEW
-bool Dictionary::operator==(const Dictionary& other) const
-{
-    return compareTrees(root, other.root);
-}
-
-// NEW
-bool Dictionary::operator!=(const Dictionary& other) const
-{
-    return !(*this == other);
-}
-
-void Dictionary::insert(string english, string russian)
-{
-    Node* newNode = createNode(english, russian);
-
     if (root == nullptr)
     {
-        root = newNode;
+        root = createNode(english, russian);
         return;
     }
 
@@ -109,41 +87,41 @@ void Dictionary::insert(string english, string russian)
 
     while (true)
     {
+        if (english == current->english)
+        {
+            wcout << L"Word already exists." << endl;
+            return;
+        }
+
         if (english < current->english)
         {
             if (current->left == nullptr)
             {
-                current->left = newNode;
+                current->left = createNode(english, russian);
                 return;
             }
 
             current = current->left;
         }
-        else if (english > current->english)
+        else
         {
             if (current->right == nullptr)
             {
-                current->right = newNode;
+                current->right = createNode(english, russian);
                 return;
             }
 
             current = current->right;
         }
-        else
-        {
-            cout << "Word already exists." << endl;
-            delete newNode;
-            return;
-        }
     }
 }
 
-Dictionary& Dictionary::operator+=(string english)
+Dictionary& Dictionary::operator+=(const string& english)
 {
     string russian;
 
     cout << "Enter Russian translation: ";
-    cin >> russian;
+    getline(cin, russian);
 
     insert(english, russian);
 
@@ -152,216 +130,184 @@ Dictionary& Dictionary::operator+=(string english)
 
 Dictionary& Dictionary::operator+=(const char* english)
 {
-    string word = english;
-
-    *this += word;
-
-    return *this;
+    return (*this += string(english));
 }
 
-Dictionary& Dictionary::operator-=(string english)
+Dictionary::Node* Dictionary::findNode(
+    Node* node,
+    const string& english) const
 {
-    Node* current = root;
-    Node* parent = nullptr;
-
-    while (current != nullptr && current->english != english)
+    if (node == nullptr)
     {
-        parent = current;
-
-        if (english < current->english)
-        {
-            current = current->left;
-        }
-        else
-        {
-            current = current->right;
-        }
+        return nullptr;
     }
 
-    if (current == nullptr)
+    if (english == node->english)
     {
-        cout << "Word not found." << endl;
-        return *this;
+        return node;
     }
 
-    if (current->left == nullptr && current->right == nullptr)
+    if (english < node->english)
     {
-        if (parent == nullptr)
-        {
-            root = nullptr;
-        }
-        else if (parent->left == current)
-        {
-            parent->left = nullptr;
-        }
-        else
-        {
-            parent->right = nullptr;
-        }
-
-        delete current;
+        return findNode(node->left, english);
     }
 
-    else if (current->left == nullptr || current->right == nullptr)
-    {
-        Node* child;
-
-        if (current->left != nullptr)
-            child = current->left;
-        else
-            child = current->right;
-
-        if (parent == nullptr)
-            root = child;
-        else if (parent->left == current)
-            parent->left = child;
-        else
-            parent->right = child;
-
-        delete current;
-    }
-
-    else
-    {
-        Node* successorParent = current;
-        Node* successor = current->right;
-
-        while (successor->left != nullptr)
-        {
-            successorParent = successor;
-            successor = successor->left;
-        }
-
-        current->english = successor->english;
-        current->russian = successor->russian;
-
-        if (successorParent->left == successor)
-            successorParent->left = successor->right;
-        else
-            successorParent->right = successor->right;
-
-        delete successor;
-    }
-
-    cout << "Word removed." << endl;
-
-    return *this;
+    return findNode(node->right, english);
 }
 
-string Dictionary::search(string english)
+string Dictionary::search(const string& english) const
 {
-    Node* current = root;
+    Node* node = findNode(root, english);
 
-    while (current != nullptr)
+    if (node == nullptr)
     {
-        if (english == current->english)
-        {
-            return current->russian;
-        }
-        else if (english < current->english)
-        {
-            current = current->left;
-        }
-        else
-        {
-            current = current->right;
-        }
+        return "";
     }
 
-    return "word not found";
+    return node->russian;
 }
 
-string& Dictionary::operator[](string english)
+string& Dictionary::operator[](const string& english)
 {
-    Node* current = root;
+    Node* node = findNode(root, english);
 
-    while (current != nullptr)
+    if (node == nullptr)
     {
-        if (english == current->english)
-        {
-            return current->russian;
-        }
-        else if (english < current->english)
-        {
-            current = current->left;
-        }
-        else
-        {
-            current = current->right;
-        }
+        static string empty;
+
+        empty = "";
+
+        return empty;
     }
 
-    static string notFound = "word not found";
-
-    return notFound;
+    return node->russian;
 }
 
-void Dictionary::displayTree(Node* current)
+void Dictionary::displayTree(Node* node) const
 {
-    if (current == nullptr)
+    if (node == nullptr)
     {
         return;
     }
 
-    displayTree(current->left);
+    displayTree(node->left);
 
-    cout << current->english << " - "
-         << current->russian << endl;
+    wcout << dictionaryUtf8ToWide(node->english)
+          << L" - "
+          << dictionaryUtf8ToWide(node->russian)
+          << endl;
 
-    displayTree(current->right);
+    displayTree(node->right);
 }
 
-void Dictionary::deleteTree(Node* current)
+void Dictionary::display() const
 {
-    if (current == nullptr)
-    {
-        return;
-    }
-
-    deleteTree(current->left);
-    deleteTree(current->right);
-
-    delete current;
-}
-
-void Dictionary::display()
-{
-    if (root == nullptr)
-    {
-        cout << "Dictionary is empty." << endl;
-        return;
-    }
-
-    cout << endl;
-    cout << "Dictionary:" << endl;
+    wcout << endl;
+    wcout << L"Dictionary:" << endl;
 
     displayTree(root);
 }
 
-int countNodes(Node* current)
+int Dictionary::countNodes(Node* node) const
 {
-    if (current == nullptr)
+    if (node == nullptr)
     {
         return 0;
     }
 
-    return 1 + countNodes(current->left) + countNodes(current->right);
+    return 1
+         + countNodes(node->left)
+         + countNodes(node->right);
 }
 
-int Dictionary::size()
+int Dictionary::size() const
 {
     return countNodes(root);
 }
 
-bool Dictionary::loadFromFile(string filename)
+Dictionary::Node* Dictionary::findMinimum(Node* node) const
+{
+    while (node != nullptr && node->left != nullptr)
+    {
+        node = node->left;
+    }
+
+    return node;
+}
+
+Dictionary::Node* Dictionary::removeNode(
+    Node* node,
+    const string& english)
+{
+    if (node == nullptr)
+    {
+        return nullptr;
+    }
+
+    if (english < node->english)
+    {
+        node->left = removeNode(node->left, english);
+    }
+    else if (english > node->english)
+    {
+        node->right = removeNode(node->right, english);
+    }
+    else
+    {
+        if (node->left == nullptr)
+        {
+            Node* temp = node->right;
+            delete node;
+            return temp;
+        }
+
+        if (node->right == nullptr)
+        {
+            Node* temp = node->left;
+            delete node;
+            return temp;
+        }
+
+        Node* temp = findMinimum(node->right);
+
+        node->english = temp->english;
+        node->russian = temp->russian;
+
+        node->right =
+            removeNode(node->right, temp->english);
+    }
+
+    return node;
+}
+
+Dictionary& Dictionary::operator-=(const string& english)
+{
+    if (findNode(root, english) == nullptr)
+    {
+        wcout << L"Word not found." << endl;
+        return *this;
+    }
+
+    root = removeNode(root, english);
+
+    wcout << L"Word removed." << endl;
+
+    return *this;
+}
+
+void Dictionary::loadFromFile(const string& filename)
 {
     ifstream file(filename);
 
-    if (!file)
+    if (!file.is_open())
     {
-        cout << "Could not open file." << endl;
-        return false;
+        wcout << L"Cannot open file." << endl;
+        return;
     }
+
+    // Clear the current dictionary before loading
+    deleteTree(root);
+    root = nullptr;
 
     string english;
     string russian;
@@ -373,42 +319,39 @@ bool Dictionary::loadFromFile(string filename)
 
     file.close();
 
-    cout << "Dictionary loaded from file." << endl;
-
-    return true;
+    wcout << L"Dictionary loaded from file." << endl;
 }
 
-void Dictionary::saveTree(Node* current, ofstream& file)
+void Dictionary::saveTreeToFile(
+    Node* node,
+    ofstream& file) const
 {
-    if (current == nullptr)
+    if (node == nullptr)
     {
         return;
     }
 
-    saveTree(current->left, file);
+    saveTreeToFile(node->left, file);
 
-    file << current->english << " "
-         << current->russian << endl;
+    file << node->english << " "
+         << node->russian << endl;
 
-    saveTree(current->right, file);
+    saveTreeToFile(node->right, file);
 }
 
-// NEW
-bool Dictionary::saveToFile(string filename)
+void Dictionary::saveToFile(const string& filename) const
 {
     ofstream file(filename);
 
-    if (!file)
+    if (!file.is_open())
     {
-        cout << "Could not create file." << endl;
-        return false;
+        wcout << L"Cannot open file for saving." << endl;
+        return;
     }
 
-    saveTree(root, file);
+    saveTreeToFile(root, file);
 
     file.close();
 
-    cout << "Dictionary saved to file." << endl;
-
-    return true;
+    wcout << L"Dictionary saved to file." << endl;
 }

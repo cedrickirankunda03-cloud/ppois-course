@@ -1,72 +1,182 @@
 #include "Dictionary.h"
 #include <iostream>
+#include <string>
+#include <fcntl.h>
+#include <io.h>
+#include <windows.h>
 
 using namespace std;
 
+string wideToUtf8(const wstring& text)
+{
+    if (text.empty())
+    {
+        return "";
+    }
+
+    int size = WideCharToMultiByte(
+        CP_UTF8,
+        0,
+        text.c_str(),
+        -1,
+        nullptr,
+        0,
+        nullptr,
+        nullptr
+    );
+
+    string result(size - 1, '\0');
+
+    WideCharToMultiByte(
+        CP_UTF8,
+        0,
+        text.c_str(),
+        -1,
+        &result[0],
+        size,
+        nullptr,
+        nullptr
+    );
+
+    return result;
+}
+
+wstring utf8ToWide(const string& text)
+{
+    if (text.empty())
+    {
+        return L"";
+    }
+
+    int size = MultiByteToWideChar(
+        CP_UTF8,
+        0,
+        text.c_str(),
+        -1,
+        nullptr,
+        0
+    );
+
+    wstring result(size - 1, L'\0');
+
+    MultiByteToWideChar(
+        CP_UTF8,
+        0,
+        text.c_str(),
+        -1,
+        &result[0],
+        size
+    );
+
+    return result;
+}
+
 int main()
 {
+    _setmode(_fileno(stdin), _O_U16TEXT);
+    _setmode(_fileno(stdout), _O_U16TEXT);
+
     Dictionary dictionary;
+
+    // Initial dictionary
+    dictionary.insert("apple", "яблоко");
+    dictionary.insert("cat", "кошка");
+    dictionary.insert("dog", "собака");
+    dictionary.insert("house", "дом");
+    dictionary.insert("book", "книга");
 
     int choice = 0;
 
     while (choice != 9)
     {
-        cout << endl;
-        cout << "===== ENGLISH-RUSSIAN DICTIONARY =====" << endl;
-        cout << "1. Add word" << endl;
-        cout << "2. Remove word" << endl;
-        cout << "3. Search word" << endl;
-        cout << "4. Change translation" << endl;
-        cout << "5. Display dictionary" << endl;
-        cout << "6. Number of words" << endl;
-        cout << "7. Load from file" << endl;
-        cout << "8. Save to file" << endl;
-        cout << "9. Exit" << endl;
-        cout << "Choose an option: ";
-        cin >> choice;
+        wcout << L"\n===== ENGLISH-RUSSIAN DICTIONARY =====\n";
+        wcout << L"1. Add word\n";
+        wcout << L"2. Remove word\n";
+        wcout << L"3. Search word\n";
+        wcout << L"4. Change translation\n";
+        wcout << L"5. Display dictionary\n";
+        wcout << L"6. Number of words\n";
+        wcout << L"7. Load from file\n";
+        wcout << L"8. Save to file\n";
+        wcout << L"9. Exit\n";
+        wcout << L"Choose an option: ";
+
+        wcin >> choice;
+        wcin.ignore(10000, L'\n');
 
         if (choice == 1)
         {
-            string english;
+            wstring englishWide;
+            wstring russian;
 
-            cout << "Enter English word: ";
-            cin >> english;
+            wcout << L"Enter English word: ";
+            wcin >> englishWide;
+            wcin.ignore(10000, L'\n');
 
-            dictionary += english;
+            wcout << L"Enter Russian translation: ";
+            getline(wcin, russian);
+
+            dictionary.insert(
+                wideToUtf8(englishWide),
+                wideToUtf8(russian)
+            );
         }
         else if (choice == 2)
         {
-            string english;
+            wstring englishWide;
 
-            cout << "Enter English word to remove: ";
-            cin >> english;
+            wcout << L"Enter English word to remove: ";
+            wcin >> englishWide;
+            wcin.ignore(10000, L'\n');
 
-            dictionary -= english;
+            dictionary -= wideToUtf8(englishWide);
         }
         else if (choice == 3)
         {
-            string english;
+            wstring englishWide;
 
-            cout << "Enter English word to search: ";
-            cin >> english;
+            wcout << L"Enter English word to search: ";
+            wcin >> englishWide;
+            wcin.ignore(10000, L'\n');
 
-            cout << "Translation: "
-                 << dictionary.search(english) << endl;
+            string translation =
+                dictionary.search(wideToUtf8(englishWide));
+
+            if (translation.empty())
+            {
+                wcout << L"Word not found.\n";
+            }
+            else
+            {
+                wcout << L"Translation: "
+                      << utf8ToWide(translation)
+                      << L"\n";
+            }
         }
         else if (choice == 4)
         {
-            string english;
-            string russian;
+            wstring englishWide;
+            wstring russian;
 
-            cout << "Enter English word: ";
-            cin >> english;
+            wcout << L"Enter English word: ";
+            wcin >> englishWide;
+            wcin.ignore(10000, L'\n');
 
-            cout << "Enter new Russian translation: ";
-            cin >> russian;
+            string english = wideToUtf8(englishWide);
 
-            dictionary[english] = russian;
+            if (dictionary.search(english).empty())
+            {
+                wcout << L"Word not found.\n";
+            }
+            else
+            {
+                wcout << L"Enter new Russian translation: ";
+                getline(wcin, russian);
 
-            cout << "Translation changed." << endl;
+                dictionary[english] = wideToUtf8(russian);
+
+                wcout << L"Translation changed.\n";
+            }
         }
         else if (choice == 5)
         {
@@ -74,34 +184,41 @@ int main()
         }
         else if (choice == 6)
         {
-            cout << "Number of words: "
-                 << dictionary.size() << endl;
+            wcout << L"Number of words: "
+                  << dictionary.size()
+                  << L"\n";
         }
         else if (choice == 7)
         {
-            string filename;
+            wstring filenameWide;
 
-            cout << "Enter filename: ";
-            cin >> filename;
+            wcout << L"Enter filename: ";
+            wcin >> filenameWide;
+            wcin.ignore(10000, L'\n');
 
-            dictionary.loadFromFile(filename);
+            dictionary.loadFromFile(
+                wideToUtf8(filenameWide)
+            );
         }
         else if (choice == 8)
         {
-            string filename;
+            wstring filenameWide;
 
-            cout << "Enter filename: ";
-            cin >> filename;
+            wcout << L"Enter filename: ";
+            wcin >> filenameWide;
+            wcin.ignore(10000, L'\n');
 
-            dictionary.saveToFile(filename);
+            dictionary.saveToFile(
+                wideToUtf8(filenameWide)
+            );
         }
         else if (choice == 9)
         {
-            cout << "Goodbye!" << endl;
+            wcout << L"Goodbye!\n";
         }
         else
         {
-            cout << "Invalid option." << endl;
+            wcout << L"Invalid option.\n";
         }
     }
 

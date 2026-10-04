@@ -1,5 +1,5 @@
 apple яблоко
-cat кошка
+book книга
+cat кот
 dog собака
 house дом
-book книга
