@@ -1,242 +1,291 @@
 #include "Dictionary.h"
-#include <iostream>
-#include <string>
-#include <cassert>
+#include <gtest/gtest.h>
 #include <fstream>
+#include <sstream>
+#include <iostream>
 
 using namespace std;
 
-void testInsertAndSearch()
+TEST(DictionaryTest, InsertAndSearch)
 {
     Dictionary dictionary;
-
     dictionary.insert("apple", "яблоко");
     dictionary.insert("cat", "кошка");
 
-    assert(dictionary.search("apple") == "яблоко");
-    assert(dictionary.search("cat") == "кошка");
-
-    cout << "testInsertAndSearch: PASSED" << endl;
+    EXPECT_EQ(dictionary.search("apple"), "яблоко");
+    EXPECT_EQ(dictionary.search("cat"), "кошка");
+    EXPECT_EQ(dictionary.search("dog"), "");
 }
 
-void testSize()
+TEST(DictionaryTest, Size)
 {
     Dictionary dictionary;
+
+    EXPECT_EQ(dictionary.size(), 0);
 
     dictionary.insert("apple", "яблоко");
     dictionary.insert("cat", "кошка");
     dictionary.insert("dog", "собака");
 
-    assert(dictionary.size() == 3);
-
-    cout << "testSize: PASSED" << endl;
+    EXPECT_EQ(dictionary.size(), 3);
 }
 
-void testChangeTranslation()
+TEST(DictionaryTest, ChangeTranslation)
 {
     Dictionary dictionary;
 
-    dictionary.insert("cat", "кошка");
-
-    dictionary["cat"] = "кот";
-
-    assert(dictionary.search("cat") == "кот");
-
-    cout << "testChangeTranslation: PASSED" << endl;
-}
-
-void testRemoveLeaf()
-{
-    Dictionary dictionary;
-
-    dictionary.insert("cat", "кошка");
     dictionary.insert("apple", "яблоко");
-    dictionary.insert("dog", "собака");
 
-    dictionary -= "apple";
+    EXPECT_EQ(dictionary["apple"], "яблоко");
 
-    assert(dictionary.search("apple") == "");
-    assert(dictionary.size() == 2);
+    dictionary["apple"] = "новое_слово";
 
-    cout << "testRemoveLeaf: PASSED" << endl;
+    EXPECT_EQ(dictionary["apple"], "новое_слово");
 }
 
-void testRemoveNodeWithOneChild()
+TEST(DictionaryTest, RemoveLeaf)
 {
     Dictionary dictionary;
 
-    dictionary.insert("cat", "кошка");
     dictionary.insert("apple", "яблоко");
-    dictionary.insert("banana", "банан");
+    dictionary.insert("cat", "кошка");
 
-    dictionary -= "apple";
+    dictionary -= "cat";
 
-    assert(dictionary.search("apple") == "");
-    assert(dictionary.search("banana") == "банан");
-    assert(dictionary.size() == 2);
-
-    cout << "testRemoveNodeWithOneChild: PASSED" << endl;
+    EXPECT_EQ(dictionary.search("cat"), "");
+    EXPECT_EQ(dictionary.search("apple"), "яблоко");
+    EXPECT_EQ(dictionary.size(), 1);
 }
 
-void testRemoveNodeWithTwoChildren()
+TEST(DictionaryTest, RemoveNodeWithOneChild)
 {
     Dictionary dictionary;
 
     dictionary.insert("dog", "собака");
-    dictionary.insert("cat", "кошка");
-    dictionary.insert("house", "дом");
-    dictionary.insert("apple", "яблоко");
-    dictionary.insert("book", "книга");
+    dictionary.insert("elephant", "слон");
 
     dictionary -= "dog";
 
-    assert(dictionary.search("dog") == "");
-    assert(dictionary.search("cat") == "кошка");
-    assert(dictionary.search("house") == "дом");
-    assert(dictionary.search("apple") == "яблоко");
-    assert(dictionary.search("book") == "книга");
-    assert(dictionary.size() == 4);
-
-    cout << "testRemoveNodeWithTwoChildren: PASSED" << endl;
+    EXPECT_EQ(dictionary.search("dog"), "");
+    EXPECT_EQ(dictionary.search("elephant"), "слон");
+    EXPECT_EQ(dictionary.size(), 1);
 }
 
-void testNotFound()
+TEST(DictionaryTest, RemoveNodeWithTwoChildren)
+{
+    Dictionary dictionary;
+
+    dictionary.insert("dog", "собака");
+    dictionary.insert("cat", "кошка");
+    dictionary.insert("elephant", "слон");
+
+    dictionary -= "dog";
+
+    EXPECT_EQ(dictionary.search("dog"), "");
+    EXPECT_EQ(dictionary.search("cat"), "кошка");
+    EXPECT_EQ(dictionary.search("elephant"), "слон");
+    EXPECT_EQ(dictionary.size(), 2);
+}
+
+TEST(DictionaryTest, NotFound)
 {
     Dictionary dictionary;
 
     dictionary.insert("apple", "яблоко");
 
-    assert(dictionary.search("banana") == "");
-
-    cout << "testNotFound: PASSED" << endl;
+    EXPECT_EQ(dictionary.search("house"), "");
 }
 
-void testDuplicate()
+TEST(DictionaryTest, DuplicateWord)
 {
     Dictionary dictionary;
 
     dictionary.insert("apple", "яблоко");
-    dictionary.insert("apple", "яблоко");
+    dictionary.insert("apple", "другое");
 
-    assert(dictionary.size() == 1);
-
-    cout << "testDuplicate: PASSED" << endl;
+    EXPECT_EQ(dictionary.size(), 1);
+    EXPECT_EQ(dictionary.search("apple"), "яблоко");
 }
 
-void testLoadFromFile()
+TEST(DictionaryTest, PlusEqualString)
 {
-    ofstream file("test_dictionary.txt");
-
-    file << "apple яблоко" << endl;
-    file << "book книга" << endl;
-    file << "cat кошка" << endl;
-
-    file.close();
-
     Dictionary dictionary;
 
-    dictionary.loadFromFile("test_dictionary.txt");
+    istringstream input("яблоко\n");
+    streambuf* oldBuffer = cin.rdbuf(input.rdbuf());
 
-    assert(dictionary.size() == 3);
-    assert(dictionary.search("apple") == "яблоко");
-    assert(dictionary.search("book") == "книга");
-    assert(dictionary.search("cat") == "кошка");
+    dictionary += string("apple");
 
-    remove("test_dictionary.txt");
+    cin.rdbuf(oldBuffer);
 
-    cout << "testLoadFromFile: PASSED" << endl;
+    EXPECT_EQ(dictionary.size(), 1);
+    EXPECT_EQ(dictionary.search("apple"), "яблоко");
 }
 
-void testSaveToFile()
+TEST(DictionaryTest, PlusEqualCString)
+{
+    Dictionary dictionary;
+
+    istringstream input("собака\n");
+    streambuf* oldBuffer = cin.rdbuf(input.rdbuf());
+
+    dictionary += "dog";
+
+    cin.rdbuf(oldBuffer);
+
+    EXPECT_EQ(dictionary.size(), 1);
+    EXPECT_EQ(dictionary.search("dog"), "собака");
+}
+
+TEST(DictionaryTest, BracketMissingWord)
+{
+    Dictionary dictionary;
+
+    EXPECT_EQ(dictionary["house"], "");
+}
+
+TEST(DictionaryTest, SearchTreePaths)
+{
+    Dictionary dictionary;
+
+    dictionary.insert("dog", "собака");
+    dictionary.insert("cat", "кошка");
+    dictionary.insert("elephant", "слон");
+    dictionary.insert("apple", "яблоко");
+    dictionary.insert("house", "дом");
+
+    EXPECT_EQ(dictionary.search("apple"), "яблоко");
+    EXPECT_EQ(dictionary.search("cat"), "кошка");
+    EXPECT_EQ(dictionary.search("dog"), "собака");
+    EXPECT_EQ(dictionary.search("elephant"), "слон");
+    EXPECT_EQ(dictionary.search("house"), "дом");
+    EXPECT_EQ(dictionary.search("unknown"), "");
+}
+
+TEST(DictionaryTest, LoadFromFile)
+{
+    Dictionary dictionary;
+
+    dictionary.loadFromFile("dictionary.txt");
+
+    EXPECT_EQ(dictionary.search("apple"), "яблоко");
+    EXPECT_EQ(dictionary.search("book"), "книга");
+    EXPECT_EQ(dictionary.search("cat"), "кот");
+    EXPECT_EQ(dictionary.search("dog"), "собака");
+    EXPECT_EQ(dictionary.search("house"), "дом");
+}
+
+TEST(DictionaryTest, LoadReplacesDictionary)
+{
+    Dictionary dictionary;
+
+    dictionary.insert("temporary", "временный");
+
+    dictionary.loadFromFile("dictionary.txt");
+
+    EXPECT_EQ(dictionary.search("temporary"), "");
+    EXPECT_EQ(dictionary.search("apple"), "яблоко");
+    EXPECT_EQ(dictionary.search("book"), "книга");
+    EXPECT_EQ(dictionary.search("cat"), "кот");
+}
+
+TEST(DictionaryTest, SaveToFile)
 {
     Dictionary dictionary;
 
     dictionary.insert("apple", "яблоко");
     dictionary.insert("cat", "кошка");
 
-    dictionary.saveToFile("test_saved_dictionary.txt");
+    dictionary.saveToFile("test_output.txt");
 
-    ifstream file("test_saved_dictionary.txt");
+    ifstream file("test_output.txt");
 
-    assert(file.is_open());
-
-    string line1;
-    string line2;
-
-    getline(file, line1);
-    getline(file, line2);
+    EXPECT_TRUE(file.is_open());
 
     file.close();
-
-    assert(line1 == "apple яблоко");
-    assert(line2 == "cat кошка");
-
-    remove("test_saved_dictionary.txt");
-
-    cout << "testSaveToFile: PASSED" << endl;
 }
 
-void testLoadReplacesDictionary()
+TEST(DictionaryTest, MissingFile)
 {
-    ofstream file("test_replace_dictionary.txt");
+    Dictionary dictionary;
 
-    file << "orange апельсин" << endl;
-    file << "house дом" << endl;
+    dictionary.loadFromFile("file_that_does_not_exist.txt");
 
-    file.close();
+    EXPECT_EQ(dictionary.size(), 0);
+}
 
+TEST(DictionaryTest, EmptyDictionary)
+{
+    Dictionary dictionary;
+
+    EXPECT_EQ(dictionary.size(), 0);
+    EXPECT_EQ(dictionary.search("apple"), "");
+}
+
+TEST(DictionaryTest, RemoveOnlyNode)
+{
     Dictionary dictionary;
 
     dictionary.insert("apple", "яблоко");
-    dictionary.insert("cat", "кошка");
 
-    dictionary.loadFromFile("test_replace_dictionary.txt");
+    dictionary -= "apple";
 
-    assert(dictionary.size() == 2);
-    assert(dictionary.search("orange") == "апельсин");
-    assert(dictionary.search("house") == "дом");
-    assert(dictionary.search("apple") == "");
-    assert(dictionary.search("cat") == "");
-
-    remove("test_replace_dictionary.txt");
-
-    cout << "testLoadReplacesDictionary: PASSED" << endl;
+    EXPECT_EQ(dictionary.size(), 0);
+    EXPECT_EQ(dictionary.search("apple"), "");
 }
 
-void testEmptyDictionary()
+TEST(DictionaryTest, RemoveMissingWord)
 {
     Dictionary dictionary;
 
-    assert(dictionary.size() == 0);
-    assert(dictionary.search("apple") == "");
+    dictionary.insert("apple", "яблоко");
 
-    cout << "testEmptyDictionary: PASSED" << endl;
+    dictionary -= "house";
+
+    EXPECT_EQ(dictionary.size(), 1);
+    EXPECT_EQ(dictionary.search("apple"), "яблоко");
 }
 
-int main()
+TEST(DictionaryTest, RemoveWithDeepSuccessor)
 {
-    cout << "===== DICTIONARY UNIT TESTS =====" << endl;
+    Dictionary dictionary;
 
-    testInsertAndSearch();
-    testSize();
-    testChangeTranslation();
+    dictionary.insert("dog", "собака");
+    dictionary.insert("cat", "кошка");
+    dictionary.insert("elephant", "слон");
+    dictionary.insert("bear", "медведь");
 
-    testRemoveLeaf();
-    testRemoveNodeWithOneChild();
-    testRemoveNodeWithTwoChildren();
+    dictionary -= "dog";
 
-    testNotFound();
-    testDuplicate();
-
-    testLoadFromFile();
-    testSaveToFile();
-    testLoadReplacesDictionary();
-
-    testEmptyDictionary();
-
-    cout << endl;
-    cout << "ALL TESTS PASSED!" << endl;
-
-    return 0;
+    EXPECT_EQ(dictionary.search("dog"), "");
+    EXPECT_EQ(dictionary.search("bear"), "медведь");
+    EXPECT_EQ(dictionary.search("cat"), "кошка");
+    EXPECT_EQ(dictionary.search("elephant"), "слон");
+    EXPECT_EQ(dictionary.size(), 3);
 }
 
+TEST(DictionaryTest, Display)
+{
+    Dictionary dictionary;
+
+    dictionary.insert("dog", "собака");
+    dictionary.insert("cat", "кошка");
+
+    dictionary.display();
+
+    EXPECT_EQ(dictionary.size(), 2);
+}
+
+TEST(DictionaryTest, Destructor)
+{
+    {
+        Dictionary dictionary;
+
+        dictionary.insert("dog", "собака");
+        dictionary.insert("cat", "кошка");
+        dictionary.insert("elephant", "слон");
+        dictionary.insert("apple", "яблоко");
+    }
+
+    SUCCEED();
+}

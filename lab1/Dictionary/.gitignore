@@ -22,3 +22,8 @@ build/
 out/
 bin/
 obj/
+# External dependencies
+googletest/
+
+# Coverage reports
+coverage.xml
