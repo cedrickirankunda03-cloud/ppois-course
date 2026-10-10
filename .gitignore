@@ -21,3 +21,28 @@ CMakeCache.txt
 cmake_install.cmake
 Makefile
 compile_commands.json
+
+
+# Compiled programs and debug files
+*.pdb
+*.ilk
+*.idb
+*.obj
+*.exe
+
+# Test and coverage output
+LastCoverageResults.log
+coverage.xml
+coverage-report/
+SetCoverageReport/
+TestResults/
+test_output.txt
+
+# Generated build folders
+build/
+
+# Bundled dependency (unless required by the course)
+googletest/
+
+# Accidental temporary file
+.gitignorenotepad .txt
