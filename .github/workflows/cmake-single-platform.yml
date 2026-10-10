@@ -1,0 +1,29 @@
+
+name: C++ Dictionary Tests
+
+on:
+  push:
+    branches:
+      - main
+      - feature/dictionary-lab
+  pull_request:
+    branches:
+      - main
+      - feature/dictionary-lab
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: cmake -S lab1/Dictionary -B build
+
+      - name: Build Dictionary and Tests
+        run: cmake --build build --config Release
+
+      - name: Run Dictionary Tests
+        run: ctest --test-dir build -C Release --output-on-failure

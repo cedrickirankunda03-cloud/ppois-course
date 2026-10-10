@@ -9,6 +9,8 @@ obj/
 *.dll
 *.so
 *.a
+*.pdb
+*.ilk
 
 .vscode/
 .vs/
