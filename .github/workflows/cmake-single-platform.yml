@@ -34,13 +34,13 @@ jobs:
       - name: Install cppcheck
         run: sudo apt-get update && sudo apt-get install -y cppcheck
 
-      - name: Run cppcheck
-        run: |
-          cppcheck --error-exitcode=1 \
-            --enable=warning,style,performance,portability \
-            --inline-suppr \
-            --suppress=missingIncludeSystem \
-            lab1/Dictionary lab1/Set
+       - name: Run cppcheck
+  run: |
+    cppcheck --error-exitcode=1 \
+      --enable=warning,performance,portability \
+      --inline-suppr \
+      --suppress=missingIncludeSystem \
+      lab1/Dictionary lab1/Set
 
   release:
     needs: [test, lint]
