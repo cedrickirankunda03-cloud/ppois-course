@@ -9,6 +9,8 @@ obj/
 *.dll
 *.so
 *.a
+*.pdb
+*.ilk
 
 .vscode/
 .vs/
@@ -21,3 +23,19 @@ CMakeCache.txt
 cmake_install.cmake
 Makefile
 compile_commands.json
+
+CoverageReport/
+CoverageReport-*/
+
+docs/
+test_output.txt
+empty_dictionary.txt
+LastCoverageResults.log
+
+# Set lab coverage report generated locally
+
+lab1/Set/SetCoverageReport/
+
+# Generated coverage results
+
+lab1/Set/LastCoverageResults.log
