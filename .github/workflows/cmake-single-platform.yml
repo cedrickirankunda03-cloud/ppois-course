@@ -26,17 +26,21 @@ jobs:
         run: ctest --test-dir build -C Release --output-on-failure
 
   lint:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install cppcheck
-        run: choco install cppcheck -y
+        run: sudo apt-get update && sudo apt-get install -y cppcheck
 
       - name: Run cppcheck
-        shell: cmd
-        run: cppcheck --error-exitcode=1 --enable=warning,style,performance,portability --inline-suppr --suppress=missingIncludeSystem lab1\Dictionary lab1\Set
+        run: |
+          cppcheck --error-exitcode=1 \
+            --enable=warning,style,performance,portability \
+            --inline-suppr \
+            --suppress=missingIncludeSystem \
+            lab1/Dictionary lab1/Set
 
   release:
     needs: [test, lint]
