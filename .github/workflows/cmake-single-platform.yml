@@ -1,29 +1,75 @@
-
-name: C++ Dictionary Tests
+name: CI
 
 on:
   push:
     branches:
       - main
-      - feature/dictionary-lab
+      - 'feature/**'
   pull_request:
     branches:
       - main
-      - feature/dictionary-lab
 
 jobs:
-  build-and-test:
-    runs-on: windows-latest
-
+  test:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure CMake
-        run: cmake -S lab1/Dictionary -B build
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake g++
 
-      - name: Build Dictionary and Tests
+      - name: Configure CMake
+        run: cmake -S lab1/Dictionary -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
         run: cmake --build build --config Release
 
-      - name: Run Dictionary Tests
+      - name: Run tests
         run: ctest --test-dir build -C Release --output-on-failure
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install linters
+        run: sudo apt-get update && sudo apt-get install -y cppcheck clang-format
+
+      - name: Run cppcheck
+        run: cppcheck --error-exitcode=1 --enable=warning,style,performance,portability --inline-suppr lab1/Dictionary lab1/Set
+
+      - name: Check formatting
+        run: |
+          find lab1 -name '.cpp' -o -name '.h' | xargs clang-format --dry-run --Werror
+
+  release:
+    needs: [test, lint]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake g++
+
+      - name: Configure CMake
+        run: cmake -S lab1/Dictionary -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build release artifact
+        run: cmake --build build --config Release
+
+      - name: Package artifact
+        run: |
+          mkdir -p dist
+          cp build/Dictionary dist/ || cp build/lab1/Dictionary dist/ || true
+          tar -czf dist/lab1-linux.tar.gz -C dist .
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/lab1-linux.tar.gz
