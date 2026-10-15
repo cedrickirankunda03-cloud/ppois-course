@@ -1,43 +1,4 @@
-[22:41, 15/10/2026] Ir.cedrick: name: CI
-
-on:
-  push:
-    branches:
-      - main
-      - 'feature/**'
-  pull_request:
-    branches:
-      - main
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install build dependencies
-        run: sudo apt-get update && sudo apt-get install -y cmake g++
-
-      - name: Configure CMake
-        run: cmake -S lab1/Dictionary -B build -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build
-        run: cmake --build build --config Release
-
-      - name: Run tests
-        run: ctest --test-dir build -C Release --output-on-failure
-
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install linters
-        …
-[22:46, 15/10/2026] Ir.cedrick: Add lint and release jobs, fix CI triggers for feature branches
-[23:02, 15/10/2026] Ir.cedrick: name: CI
+name: CI
 
 on:
   push:
@@ -75,8 +36,7 @@ jobs:
 
       - name: Run cppcheck
         shell: cmd
-        run: |
-          cppcheck --error-exitcode=1 --enable=warning,style,performance,portability --inline-suppr --suppress=missingIncludeSystem lab1\Dictionary lab1\Set
+        run: cppcheck --error-exitcode=1 --enable=warning,style,performance,portability --inline-suppr --suppress=missingIncludeSystem lab1\Dictionary lab1\Set
 
   release:
     needs: [test, lint]
