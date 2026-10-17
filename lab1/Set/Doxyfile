@@ -1,0 +1,10 @@
+﻿PROJECT_NAME = "Unordered Cantor Set"
+PROJECT_BRIEF = "C++ implementation of an unordered set"
+OUTPUT_DIRECTORY = docs/generated
+INPUT = Set.h Set.cpp main.cpp
+RECURSIVE = NO
+EXTRACT_ALL = YES
+EXTRACT_PRIVATE = YES
+GENERATE_HTML = YES
+GENERATE_LATEX = NO
+QUIET = NO
