@@ -8,7 +8,6 @@ on:
       - 'feature/**'
     tags:
       - 'v*'
-
   pull_request:
     branches:
       - main
@@ -54,19 +53,28 @@ jobs:
       - name: Configure CMake
         run: cmake -S lab1/Dictionary -B build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build release artifact
+      - name: Build release
         run: cmake --build build --config Release
 
-      - name: Package artifact
+      - name: Prepare release package
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Get-ChildItem -Path build -Recurse -Include *.exe | Copy-Item -Destination dist -ErrorAction SilentlyContinue
-          Compress-Archive -Path dist\* -DestinationPath dist\lab1-windows.zip -Force
+          Copy-Item -Path lab1/Dictionary -Destination dist/Dictionary -Recurse
+          Copy-Item -Path lab1/Set -Destination dist/Set -Recurse
+          Get-ChildItem -Path build -Recurse -Filter *.exe | Copy-Item -Destination dist -Force
+          Compress-Archive -Path dist/Dictionary,dist/Set,dist/*.exe -DestinationPath lab1-windows.zip -Force
 
-      - name: Publish release
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab1-windows
+          path: lab1-windows.zip
+          if-no-files-found: error
+
+      - name: Upload ZIP to existing GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.0
+          tag_name: v1.o-lab1
           name: Lab 1 — Dictionary and Unordered Cantor Set
-          files: dist/lab1-windows.zip
+          files: lab1-windows.zip
