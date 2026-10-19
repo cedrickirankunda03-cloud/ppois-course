@@ -12,6 +12,7 @@ on:
   pull_request:
     branches:
       - main
+
 jobs:
   test:
     runs-on: windows-latest
@@ -66,4 +67,6 @@ jobs:
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v1.0.0
+          name: Lab 1 — Dictionary and Unordered Cantor Set
           files: dist/lab1-windows.zip
