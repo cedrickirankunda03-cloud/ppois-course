@@ -58,21 +58,33 @@ jobs:
         run: cmake --build build/Set --config Release
 
       - name: Install OpenCppCoverage
-        run: choco install opencppcoverage -y --no-progress
+        shell: pwsh
+        run: |
+          choco install opencppcoverage -y --no-progress
+          $exe = Get-ChildItem "C:\Program Files" -Recurse -Filter OpenCppCoverage.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $exe) {
+            $exe = Get-ChildItem "C:\ProgramData\chocolatey" -Recurse -Filter OpenCppCoverage.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+          }
+          if (-not $exe) {
+            throw "OpenCppCoverage.exe was not found after installation"
+          }
+          "OPENCOVERAGE_EXE=$($exe.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Generate Dictionary coverage
         shell: pwsh
         run: |
-          $exe = Get-ChildItem build/Dictionary -Recurse -Filter DictionaryTests.exe | Select-Object -First 1
-          if (-not $exe) { throw "DictionaryTests.exe not found" }
-          OpenCppCoverage.exe --sources="$PWD\lab1\Dictionary" --export_type=html:coverage/Dictionary -- $exe.FullName
+          $testExe = Get-ChildItem build/Dictionary -Recurse -Filter DictionaryTests.exe | Select-Object -First 1
+          if (-not $testExe) { throw "DictionaryTests.exe not found" }
+          & $env:OPENCOVERAGE_EXE --sources="$PWD\lab1\Dictionary" --export_type=html:coverage/Dictionary -- $testExe.FullName
+          if ($LASTEXITCODE -ne 0) { throw "Dictionary coverage generation failed" }
 
       - name: Generate Set coverage
         shell: pwsh
         run: |
-          $exe = Get-ChildItem build/Set -Recurse -Filter SetTests.exe | Select-Object -First 1
-          if (-not $exe) { throw "SetTests.exe not found" }
-          OpenCppCoverage.exe --sources="$PWD\lab1\Set" --export_type=html:coverage/Set -- $exe.FullName
+          $testExe = Get-ChildItem build/Set -Recurse -Filter SetTests.exe | Select-Object -First 1
+          if (-not $testExe) { throw "SetTests.exe not found" }
+          & $env:OPENCOVERAGE_EXE --sources="$PWD\lab1\Set" --export_type=html:coverage/Set -- $testExe.FullName
+          if ($LASTEXITCODE -ne 0) { throw "Set coverage generation failed" }
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
@@ -95,12 +107,14 @@ jobs:
         run: |
           Set-Location lab1/Dictionary
           doxygen Doxyfile
+          if ($LASTEXITCODE -ne 0) { throw "Dictionary documentation generation failed" }
 
       - name: Generate Set documentation
         shell: pwsh
         run: |
           Set-Location lab1/Set
           doxygen Doxyfile
+          if ($LASTEXITCODE -ne 0) { throw "Set documentation generation failed" }
 
       - name: Upload HTML documentation
         uses: actions/upload-artifact@v4
@@ -146,7 +160,7 @@ jobs:
         run: cmake --build build/Set --config Release
 
       - name: Prepare release package
-        shell: pwsh]
+        shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path dist | Out-Null
           Copy-Item -Path lab1/Dictionary -Destination dist/Dictionary -Recurse
