@@ -38,6 +38,79 @@ jobs:
       - name: Test Set
         run: ctest --test-dir build/Set -C Release --output-on-failure
 
+  coverage:
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure Dictionary
+        run: cmake -S lab1/Dictionary -B build/Dictionary -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Dictionary
+        run: cmake --build build/Dictionary --config Release
+
+      - name: Configure Set
+        run: cmake -S lab1/Set -B build/Set -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Set
+        run: cmake --build build/Set --config Release
+
+      - name: Install OpenCppCoverage
+        run: choco install opencppcoverage -y --no-progress
+
+      - name: Generate Dictionary coverage
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem build/Dictionary -Recurse -Filter DictionaryTests.exe | Select-Object -First 1
+          if (-not $exe) { throw "DictionaryTests.exe not found" }
+          OpenCppCoverage.exe --sources="$PWD\lab1\Dictionary" --export_type=html:coverage/Dictionary -- $exe.FullName
+
+      - name: Generate Set coverage
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem build/Set -Recurse -Filter SetTests.exe | Select-Object -First 1
+          if (-not $exe) { throw "SetTests.exe not found" }
+          OpenCppCoverage.exe --sources="$PWD\lab1\Set" --export_type=html:coverage/Set -- $exe.FullName
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab1-coverage-reports
+          path: coverage/
+          if-no-files-found: error
+
+  documentation:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Doxygen
+        run: choco install doxygen.install -y --no-progress
+
+      - name: Generate Dictionary documentation
+        shell: pwsh
+        run: |
+          Set-Location lab1/Dictionary
+          doxygen Doxyfile
+
+      - name: Generate Set documentation
+        shell: pwsh
+        run: |
+          Set-Location lab1/Set
+          doxygen Doxyfile
+
+      - name: Upload HTML documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab1-doxygen-documentation
+          path: |
+            lab1/Dictionary/docs/html/
+            lab1/Set/docs/generated/html/
+          if-no-files-found: error
+
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -51,7 +124,7 @@ jobs:
         run: cppcheck --enable=warning,performance,portability --inline-suppr --suppress=missingIncludeSystem lab1/Dictionary lab1/Set || true
 
   release:
-    needs: [test, lint]
+    needs: [test, lint, coverage, documentation]
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     runs-on: windows-latest
     permissions:
@@ -73,7 +146,7 @@ jobs:
         run: cmake --build build/Set --config Release
 
       - name: Prepare release package
-        shell: pwsh
+        shell: pwsh]
         run: |
           New-Item -ItemType Directory -Force -Path dist | Out-Null
           Copy-Item -Path lab1/Dictionary -Destination dist/Dictionary -Recurse
