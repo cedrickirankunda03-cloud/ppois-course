@@ -55,15 +55,15 @@ jobs:
         shell: pwsh
         run: choco install opencppcoverage --yes --no-progress
 
-      - name: Configure and build Dictionary
+      - name: Configure and build Dictionary for coverage
         run: |
-          cmake -S lab1/Dictionary -B build/Dictionary -DCMAKE_BUILD_TYPE=Release
-          cmake --build build/Dictionary --config Release
+          cmake -S lab1/Dictionary -B build/Dictionary-Coverage -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build/Dictionary-Coverage --config Debug
 
-      - name: Configure and build Set
+      - name: Configure and build Set for coverage
         run: |
-          cmake -S lab1/Set -B build/Set -DCMAKE_BUILD_TYPE=Release
-          cmake --build build/Set --config Release
+          cmake -S lab1/Set -B build/Set-Coverage -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build/Set-Coverage --config Debug
 
       - name: Locate coverage tool
         shell: pwsh
@@ -84,16 +84,17 @@ jobs:
       - name: Generate Dictionary coverage
         shell: pwsh
         run: |
-          $testExe = Get-ChildItem "build/Dictionary" -Recurse -Filter DictionaryTests.exe |
+          $testExe = Get-ChildItem "build/Dictionary-Coverage" -Recurse -Filter DictionaryTests.exe |
             Select-Object -First 1 -ExpandProperty FullName
 
           if (-not $testExe) {
-            throw "DictionaryTests.exe was not found. Check the test executable name."
+            throw "DictionaryTests.exe was not found in the Debug build. Check the executable name."
           }
 
           New-Item -ItemType Directory -Force -Path coverage | Out-Null
 
           & $env:COVERAGE_EXE `
+            --verbose `
             --sources "$env:GITHUB_WORKSPACE\lab1\Dictionary" `
             --export_type "html:coverage/Dictionary" `
             --working_dir "$env:GITHUB_WORKSPACE\lab1\Dictionary" `
@@ -106,16 +107,17 @@ jobs:
       - name: Generate Set coverage
         shell: pwsh
         run: |
-          $testExe = Get-ChildItem "build/Set" -Recurse -Filter SetTests.exe |
+          $testExe = Get-ChildItem "build/Set-Coverage" -Recurse -Filter SetTests.exe |
             Select-Object -First 1 -ExpandProperty FullName
 
           if (-not $testExe) {
-            throw "SetTests.exe was not found. Check the test executable name."
+            throw "SetTests.exe was not found in the Debug build. Check the executable name."
           }
 
           New-Item -ItemType Directory -Force -Path coverage | Out-Null
 
           & $env:COVERAGE_EXE `
+            --verbose `
             --sources "$env:GITHUB_WORKSPACE\lab1\Set" `
             --export_type "html:coverage/Set" `
             --working_dir "$env:GITHUB_WORKSPACE\lab1\Set" `
