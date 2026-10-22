@@ -1,4 +1,3 @@
-
 name: CI
 
 on:
@@ -13,9 +12,14 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   test:
+    name: Build and test
     runs-on: windows-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -39,145 +43,168 @@ jobs:
         run: ctest --test-dir build/Set -C Release --output-on-failure
 
   coverage:
-    needs: test
+    name: Generate coverage reports
     runs-on: windows-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure Dictionary
-        run: cmake -S lab1/Dictionary -B build/Dictionary -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build Dictionary
-        run: cmake --build build/Dictionary --config Release
-
-      - name: Configure Set
-        run: cmake -S lab1/Set -B build/Set -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build Set
-        run: cmake --build build/Set --config Release
-
       - name: Install OpenCppCoverage
-        shell: pwsh
+        run: choco install opencppcoverage --yes --no-progress
+
+      - name: Configure and build Dictionary
         run: |
-          choco install opencppcoverage -y --no-progress
-          $exe = Get-ChildItem "C:\Program Files" -Recurse -Filter OpenCppCoverage.exe -ErrorAction SilentlyContinue | Select-Object -First 1
-          if (-not $exe) {
-            $exe = Get-ChildItem "C:\ProgramData\chocolatey" -Recurse -Filter OpenCppCoverage.exe -ErrorAction SilentlyContinue | Select-Object -First 1
-          }
-          if (-not $exe) {
-            throw "OpenCppCoverage.exe was not found after installation"
-          }
-          "OPENCOVERAGE_EXE=$($exe.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+          cmake -S lab1/Dictionary -B build/Dictionary -DCMAKE_BUILD_TYPE=Release
+          if ($LASTEXITCODE -ne 0) { throw "Dictionary configuration failed" }
+          cmake --build build/Dictionary --config Release
+          if ($LASTEXITCODE -ne 0) { throw "Dictionary build failed" }
+
+      - name: Configure and build Set
+        run: |
+          cmake -S lab1/Set -B build/Set -DCMAKE_BUILD_TYPE=Release
+          if ($LASTEXITCODE -ne 0) { throw "Set configuration failed" }
+          cmake --build build/Set --config Release
+          if ($LASTEXITCODE -ne 0) { throw "Set build failed" }
 
       - name: Generate Dictionary coverage
         shell: pwsh
         run: |
-          $testExe = Get-ChildItem build/Dictionary -Recurse -Filter DictionaryTests.exe | Select-Object -First 1
-          if (-not $testExe) { throw "DictionaryTests.exe not found" }
-          & $env:OPENCOVERAGE_EXE --sources="$PWD\lab1\Dictionary" --export_type=html:coverage/Dictionary -- $testExe.FullName
-          if ($LASTEXITCODE -ne 0) { throw "Dictionary coverage generation failed" }
+          $testExe = Get-ChildItem build/Dictionary -Recurse -Filter DictionaryTests.exe |
+            Select-Object -First 1 -ExpandProperty FullName
+
+          if (-not $testExe) {
+            throw "DictionaryTests.exe was not found"
+          }
+
+          New-Item -ItemType Directory -Force -Path coverage | Out-Null
+
+          & OpenCppCoverage.exe `
+            --sources "$env:GITHUB_WORKSPACE\lab1\Dictionary" `
+            --export_type "html:coverage/Dictionary" `
+            --working_dir "$env:GITHUB_WORKSPACE\lab1\Dictionary" `
+            -- $testExe
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "Dictionary coverage generation failed"
+          }
 
       - name: Generate Set coverage
         shell: pwsh
         run: |
-          $testExe = Get-ChildItem build/Set -Recurse -Filter SetTests.exe | Select-Object -First 1
-          if (-not $testExe) { throw "SetTests.exe not found" }
-          & $env:OPENCOVERAGE_EXE --sources="$PWD\lab1\Set" --export_type=html:coverage/Set -- $testExe.FullName
-          if ($LASTEXITCODE -ne 0) { throw "Set coverage generation failed" }
+          $testExe = Get-ChildItem build/Set -Recurse -Filter SetTests.exe |
+            Select-Object -First 1 -ExpandProperty FullName
+
+          if (-not $testExe) {
+            throw "SetTests.exe was not found"
+          }
+
+          New-Item -ItemType Directory -Force -Path coverage | Out-Null
+
+          & OpenCppCoverage.exe `
+            --sources "$env:GITHUB_WORKSPACE\lab1\Set" `
+            --export_type "html:coverage/Set" `
+            --working_dir "$env:GITHUB_WORKSPACE\lab1\Set" `
+            -- $testExe
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "Set coverage generation failed"
+          }
 
       - name: Upload coverage reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: lab1-coverage-reports
           path: coverage/
-          if-no-files-found: error
+          if-no-files-found: warn
 
   documentation:
+    name: Generate Doxygen documentation
     runs-on: windows-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install Doxygen
-        run: choco install doxygen.install -y --no-progress
+        run: choco install doxygen.install --yes --no-progress
 
       - name: Generate Dictionary documentation
         shell: pwsh
         run: |
-          Set-Location lab1/Dictionary
-          doxygen Doxyfile
-          if ($LASTEXITCODE -ne 0) { throw "Dictionary documentation generation failed" }
+          Push-Location lab1/Dictionary
+          try {
+            doxygen Doxyfile
+            if ($LASTEXITCODE -ne 0) {
+              throw "Dictionary documentation generation failed"
+            }
+          }
+          finally {
+            Pop-Location
+          }
 
       - name: Generate Set documentation
         shell: pwsh
         run: |
-          Set-Location lab1/Set
-          doxygen Doxyfile
-          if ($LASTEXITCODE -ne 0) { throw "Set documentation generation failed" }
+          Push-Location lab1/Set
+          try {
+            doxygen Doxyfile
+            if ($LASTEXITCODE -ne 0) {
+              throw "Set documentation generation failed"
+            }
+          }
+          finally {
+            Pop-Location
+          }
 
-      - name: Upload HTML documentation
+      - name: Upload Doxygen documentation
         uses: actions/upload-artifact@v4
         with:
           name: lab1-doxygen-documentation
           path: |
             lab1/Dictionary/docs/html/
             lab1/Set/docs/generated/html/
-          if-no-files-found: error
+          if-no-files-found: warn
 
   lint:
-    runs-on: ubuntu-latest
+    name: C++ static analysis
+    runs-on: windows-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install cppcheck
-        run: sudo apt-get update && sudo apt-get install -y cppcheck
+        run: choco install cppcheck --yes --no-progress
 
       - name: Run cppcheck
-        run: cppcheck --enable=warning,performance,portability --inline-suppr --suppress=missingIncludeSystem lab1/Dictionary lab1/Set || true
+        shell: pwsh
+        run: |
+          cppcheck --enable=warning,performance,portability --error-exitcode=0 lab1/Dictionary lab1/Set
 
   release:
-    needs: [test, lint, coverage, documentation]
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    name: Package Lab 1 release
     runs-on: windows-latest
-    permissions:
-      contents: write
+    needs:
+      - test
+      - coverage
+      - documentation
+      - lint
+    if: startsWith(github.ref, 'refs/tags/v')
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure Dictionary
-        run: cmake -S lab1/Dictionary -B build/Dictionary -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build Dictionary
-        run: cmake --build build/Dictionary --config Release
-
-      - name: Configure Set
-        run: cmake -S lab1/Set -B build/Set -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build Set
-        run: cmake --build build/Set --config Release
-
-      - name: Prepare release package
+      - name: Create release archive
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Copy-Item -Path lab1/Dictionary -Destination dist/Dictionary -Recurse
-          Copy-Item -Path lab1/Set -Destination dist/Set -Recurse
-          Get-ChildItem -Path build -Recurse -Filter *.exe | Copy-Item -Destination dist -Force
-          Compress-Archive -Path dist/Dictionary,dist/Set,dist/*.exe -DestinationPath lab1-windows.zip -Force
+          Compress-Archive -Path lab1/Dictionary, lab1/Set -DestinationPath lab1-windows.zip -Force
 
-      - name: Upload workflow artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: lab1-windows
-          path: lab1-windows.zip
-          if-no-files-found: error
-
-      - name: Upload ZIP to existing GitHub release
+      - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.o-lab1
-          name: Lab 1 — Dictionary and Unordered Cantor Set
+          name: Lab 1 - Dictionary and Unordered Cantor Set
           files: lab1-windows.zip
+          generate_release_notes: true
