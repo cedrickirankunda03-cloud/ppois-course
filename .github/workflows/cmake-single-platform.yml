@@ -1,3 +1,4 @@
+
 name: CI
 
 on:
@@ -19,14 +20,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure CMake
-        run: cmake -S lab1/Dictionary -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Configure Dictionary
+        run: cmake -S lab1/Dictionary -B build/Dictionary -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build
-        run: cmake --build build --config Release
+      - name: Build Dictionary
+        run: cmake --build build/Dictionary --config Release
 
-      - name: Run tests
-        run: ctest --test-dir build -C Release --output-on-failure
+      - name: Test Dictionary
+        run: ctest --test-dir build/Dictionary -C Release --output-on-failure
+
+      - name: Configure Set
+        run: cmake -S lab1/Set -B build/Set -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Set
+        run: cmake --build build/Set --config Release
+
+      - name: Test Set
+        run: ctest --test-dir build/Set -C Release --output-on-failure
 
   lint:
     runs-on: ubuntu-latest
@@ -50,11 +60,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure CMake
-        run: cmake -S lab1/Dictionary -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Configure Dictionary
+        run: cmake -S lab1/Dictionary -B build/Dictionary -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build release
-        run: cmake --build build --config Release
+      - name: Build Dictionary
+        run: cmake --build build/Dictionary --config Release
+
+      - name: Configure Set
+        run: cmake -S lab1/Set -B build/Set -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Set
+        run: cmake --build build/Set --config Release
 
       - name: Prepare release package
         shell: pwsh
