@@ -1,0 +1,21 @@
+# Doxygen configuration for the Unordered Cantor Set
+
+PROJECT_NAME           = "Unordered Cantor Set"
+PROJECT_NUMBER         = 1.0
+PROJECT_BRIEF          = "Lab 1 - Design of Intelligent Systems Software"
+
+OUTPUT_DIRECTORY       = docs
+INPUT                  = Set.h Set.cpp main.cpp
+RECURSIVE              = NO
+
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+
+OPTIMIZE_OUTPUT_FOR_C  = NO
+MARKDOWN_SUPPORT       = YES
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+
+QUIET                  = YES
+WARNINGS               = YES
