@@ -53,7 +53,41 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install OpenCppCoverage
-        run: choco install opencppcoverage --no-progress -y
+        shell: pwsh
+        run: |
+          choco install opencppcoverage --no-progress -y
+
+          $coverageExe = Get-Command OpenCppCoverage.exe -ErrorAction SilentlyContinue |
+            Select-Object -First 1 -ExpandProperty Source
+
+          if (-not $coverageExe) {
+            $possiblePaths = @(
+              "C:\Program Files\OpenCppCoverage\OpenCppCoverage.exe",
+              "C:\Program Files (x86)\OpenCppCoverage\OpenCppCoverage.exe",
+              "C:\ProgramData\chocolatey\bin\OpenCppCoverage.exe"
+            )
+
+            foreach ($path in $possiblePaths) {
+              if (Test-Path $path) {
+                $coverageExe = $path
+                break
+              }
+            }
+          }
+
+          if (-not $coverageExe) {
+            $coverageExe = Get-ChildItem "C:\Program Files" `
+              -Filter "OpenCppCoverage.exe" -Recurse `
+              -ErrorAction SilentlyContinue |
+              Select-Object -First 1 -ExpandProperty FullName
+          }
+
+          if (-not $coverageExe) {
+            throw "OpenCppCoverage.exe was not found after installation."
+          }
+
+          "OPENCPPCOVERAGE_EXE=$coverageExe" >> $env:GITHUB_ENV
+          Write-Host "Coverage tool found: $coverageExe"
 
       - name: Configure and build Dictionary
         run: |
@@ -65,63 +99,74 @@ jobs:
           cmake -S lab1/Set -B build/Set -DCMAKE_BUILD_TYPE=Release
           cmake --build build/Set --config Release
 
-      - name: Measure Dictionary coverage
+      - name: Generate Dictionary coverage
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force coverage/Dictionary | Out-Null
-          $test = Get-ChildItem build/Dictionary -Recurse -Filter '*Tests.exe' |
+
+          $test = Get-ChildItem build/Dictionary -Filter "*Tests.exe" -Recurse |
             Select-Object -First 1
+
           if (-not $test) {
             throw "Dictionary test executable was not found."
           }
-          OpenCppCoverage.exe `
+
+          & $env:OPENCPPCOVERAGE_EXE `
             --sources "$env:GITHUB_WORKSPACE\lab1\Dictionary" `
             --export_type "html:coverage/Dictionary" `
             -- $test.FullName
+
           if ($LASTEXITCODE -ne 0) {
-            throw "Dictionary coverage measurement failed."
+            throw "Dictionary coverage generation failed."
           }
 
-      - name: Measure Set coverage
+      - name: Generate Set coverage
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force coverage/Set | Out-Null
-          $test = Get-ChildItem build/Set -Recurse -Filter '*Tests.exe' |
+
+          $test = Get-ChildItem build/Set -Filter "*Tests.exe" -Recurse |
             Select-Object -First 1
+
           if (-not $test) {
             throw "Set test executable was not found."
           }
-          OpenCppCoverage.exe `
+
+          & $env:OPENCPPCOVERAGE_EXE `
             --sources "$env:GITHUB_WORKSPACE\lab1\Set" `
             --export_type "html:coverage/Set" `
             -- $test.FullName
+
           if ($LASTEXITCODE -ne 0) {
-            throw "Set coverage measurement failed."
+            throw "Set coverage generation failed."
           }
 
       - name: Upload coverage reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: lab1-coverage-reports
           path: coverage/
-          if-no-files-found: error
+          if-no-files-found: warn
+          retention-days: 14
 
   lint:
-    name: Static analysis
+    name: Cppcheck
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Cppcheck
+      - name: Install cppcheck
         run: |
           sudo apt-get update
           sudo apt-get install -y cppcheck
 
-      - name: Run Cppcheck
+      - name: Check Dictionary and Set
         run: |
-          cppcheck --enable=warning,performance,portability \
+          cppcheck \
+            --enable=warning,performance,portability \
             --error-exitcode=1 \
             --language=c++ \
             lab1/Dictionary lab1/Set
@@ -140,20 +185,21 @@ jobs:
           sudo apt-get install -y doxygen graphviz
 
       - name: Generate Dictionary documentation
-        working-directory: lab1/Dictionary
-        run: doxygen Doxyfile
+        run: |
+          cd lab1/Dictionary
+          doxygen Doxyfile
 
       - name: Generate Set documentation
-        working-directory: lab1/Set
-        run: doxygen Doxyfile
+        run: |
+          cd lab1/Set
+          doxygen Doxyfile
 
-      - name: Assemble documentation website
-        shell: bash
+      - name: Prepare website
         run: |
           mkdir -p _site/dictionary _site/set
 
-          cp -a lab1/Dictionary/docs/html/. _site/dictionary/
-          cp -a lab1/Set/docs/html/. _site/set/
+          cp -r lab1/Dictionary/docs/html/. _site/dictionary/
+          cp -r lab1/Set/docs/html/. _site/set/
 
           cat > _site/index.html <<'EOF'
           <!DOCTYPE html>
@@ -164,22 +210,22 @@ jobs:
             <title>Lab 1 Documentation</title>
           </head>
           <body>
-            <h1>Lab 1 Documentation</h1>
+            <h1>Lab 1 - Documentation</h1>
             <ul>
-              <li><a href="dictionary/index.html">English-Russian Dictionary</a></li>
-              <li><a href="set/index.html">Unordered Cantor Set</a></li>
+              <li><a href="dictionary/index.html">Dictionary Documentation</a></li>
+              <li><a href="set/index.html">Unordered Cantor Set Documentation</a></li>
             </ul>
           </body>
           </html>
           EOF
 
-      - name: Upload documentation artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
   deploy-docs:
-    name: Publish documentation
+    name: Deploy documentation website
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: documentation
     runs-on: ubuntu-latest
@@ -190,17 +236,19 @@ jobs:
 
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Deploy to GitHub Pages
-        id: deployment
         uses: actions/deploy-pages@v4
 
   release:
-    name: Create Lab 1 Release
+    name: Package and publish release
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [test, coverage, lint, documentation]
+    needs:
+      - test
+      - coverage
+      - lint
+      - documentation
     runs-on: windows-latest
 
     permissions:
@@ -210,51 +258,73 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure and build Dictionary
+      - name: Build Dictionary
         run: |
           cmake -S lab1/Dictionary -B build/Dictionary -DCMAKE_BUILD_TYPE=Release
           cmake --build build/Dictionary --config Release
 
-      - name: Configure and build Set
+      - name: Build Set
         run: |
           cmake -S lab1/Set -B build/Set -DCMAKE_BUILD_TYPE=Release
           cmake --build build/Set --config Release
 
-      - name: Package Lab 1
+      - name: Prepare release package
         shell: pwsh
         run: |
+          New-Item -ItemType Directory -Force release/package/Dictionary | Out-Null
+          New-Item -ItemType Directory -Force release/package/Set | Out-Null
           New-Item -ItemType Directory -Force release/package/bin/Dictionary | Out-Null
           New-Item -ItemType Directory -Force release/package/bin/Set | Out-Null
 
-          Copy-Item lab1/Dictionary release/package/Dictionary -Recurse
-          Copy-Item lab1/Set release/package/Set -Recurse
+          Copy-Item lab1/Dictionary/* release/package/Dictionary/ -Recurse -Force
+          Copy-Item lab1/Set/* release/package/Set/ -Recurse -Force
 
-          $dictExe = Get-ChildItem build/Dictionary -Recurse -Filter '*.exe' |
-            Where-Object { $_.FullName -match '\\Release\\' }
-          $setExe = Get-ChildItem build/Set -Recurse -Filter '*.exe' |
-            Where-Object { $_.FullName -match '\\Release\\' }
+          $dictionaryExe = Get-ChildItem build/Dictionary -Filter "*.exe" -Recurse
+          $setExe = Get-ChildItem build/Set -Filter "*.exe" -Recurse
 
-          if (-not $dictExe) {
-            throw "No Dictionary executable was found."
+          if (-not $dictionaryExe) {
+            throw "No Dictionary executables were found."
           }
+
           if (-not $setExe) {
-            throw "No Set executable was found."
+            throw "No Set executables were found."
           }
 
-          $dictExe | Copy-Item -Destination release/package/bin/Dictionary
-          $setExe | Copy-Item -Destination release/package/bin/Set
+          foreach ($file in $dictionaryExe) {
+            Copy-Item $file.FullName release/package/bin/Dictionary/ -Force
+          }
 
-          Compress-Archive -Path release/package/* `
-            -DestinationPath release/lab1-windows.zip -Force
+          foreach ($file in $setExe) {
+            Copy-Item $file.FullName release/package/bin/Set/ -Force
+          }
+
+          @"
+          Lab 1 - Design of Intelligent Systems Software
+
+          Contents:
+          - Dictionary source code and project files
+          - Unordered Cantor Set source code and project files
+          - Compiled Windows executables in bin/
+          "@ | Set-Content release/package/README.txt
+
+      - name: Create ZIP and SHA256 checksum
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force release | Out-Null
+
+          Compress-Archive `
+            -Path release/package/* `
+            -DestinationPath release/lab1-windows.zip `
+            -Force
 
           $hash = (Get-FileHash release/lab1-windows.zip -Algorithm SHA256).Hash
-          Set-Content release/SHA256.txt "$hash  lab1-windows.zip"
+          "$hash  lab1-windows.zip" |
+            Set-Content release/lab1-windows.zip.sha256
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: Lab 1 - Dictionary and Unordered Cantor Set
           generate_release_notes: true
           files: |
             release/lab1-windows.zip
-            release/SHA256.txt
+            release/lab1-windows.zip.sha256
