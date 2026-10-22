@@ -1,3 +1,4 @@
+
 name: CI
 
 on:
@@ -13,7 +14,7 @@ on:
       - main
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   test:
@@ -42,220 +43,94 @@ jobs:
       - name: Test Set
         run: ctest --test-dir build/Set -C Release --output-on-failure
 
-  coverage:
-    name: Generate code coverage
-    runs-on: windows-latest
-    needs: test
+  lint:
+    name: Static analysis
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install OpenCppCoverage
-        shell: pwsh
-        run: choco install opencppcoverage --yes --no-progress
-
-      - name: Configure and build Dictionary for coverage
+      - name: Install cppcheck
         run: |
-          cmake -S lab1/Dictionary -B build/Dictionary-Coverage -DCMAKE_BUILD_TYPE=Debug
-          cmake --build build/Dictionary-Coverage --config Debug
+          sudo apt-get update
+          sudo apt-get install -y cppcheck
 
-      - name: Configure and build Set for coverage
+      - name: Run cppcheck
         run: |
-          cmake -S lab1/Set -B build/Set-Coverage -DCMAKE_BUILD_TYPE=Debug
-          cmake --build build/Set-Coverage --config Debug
-
-      - name: Locate coverage tool
-        shell: pwsh
-        run: |
-          $coverageExe = Get-ChildItem "C:\Program Files" -Recurse -Filter OpenCppCoverage.exe -ErrorAction SilentlyContinue |
-            Select-Object -First 1 -ExpandProperty FullName
-
-          if (-not $coverageExe) {
-            $coverageExe = (Get-Command OpenCppCoverage.exe -ErrorAction SilentlyContinue).Source
-          }
-
-          if (-not $coverageExe) {
-            throw "OpenCppCoverage.exe was not found."
-          }
-
-          "COVERAGE_EXE=$coverageExe" | Out-File -FilePath $env:GITHUB_ENV -Append
-
-      - name: Generate Dictionary coverage
-        shell: pwsh
-        run: |
-          $testExe = Get-ChildItem "build/Dictionary-Coverage" -Recurse -Filter DictionaryTests.exe |
-            Select-Object -First 1 -ExpandProperty FullName
-
-          if (-not $testExe) {
-            throw "DictionaryTests.exe was not found in the Debug build. Check the executable name."
-          }
-
-          New-Item -ItemType Directory -Force -Path coverage | Out-Null
-
-          & $env:COVERAGE_EXE `
-            --verbose `
-            --sources "$env:GITHUB_WORKSPACE\lab1\Dictionary" `
-            --export_type "html:coverage/Dictionary" `
-            --working_dir "$env:GITHUB_WORKSPACE\lab1\Dictionary" `
-            -- $testExe
-
-          if ($LASTEXITCODE -ne 0) {
-            throw "Dictionary coverage generation failed."
-          }
-
-      - name: Generate Set coverage
-        shell: pwsh
-        run: |
-          $testExe = Get-ChildItem "build/Set-Coverage" -Recurse -Filter SetTests.exe |
-            Select-Object -First 1 -ExpandProperty FullName
-
-          if (-not $testExe) {
-            throw "SetTests.exe was not found in the Debug build. Check the executable name."
-          }
-
-          New-Item -ItemType Directory -Force -Path coverage | Out-Null
-
-          & $env:COVERAGE_EXE `
-            --verbose `
-            --sources "$env:GITHUB_WORKSPACE\lab1\Set" `
-            --export_type "html:coverage/Set" `
-            --working_dir "$env:GITHUB_WORKSPACE\lab1\Set" `
-            -- $testExe
-
-          if ($LASTEXITCODE -ne 0) {
-            throw "Set coverage generation failed."
-          }
-
-      - name: Upload coverage reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: lab1-coverage-reports
-          path: coverage/
-          if-no-files-found: warn
+          cppcheck --enable=warning,performance,portability \
+            --error-exitcode=1 \
+            --language=c++ \
+            lab1/Dictionary lab1/Set
 
   documentation:
     name: Generate Doxygen documentation
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Doxygen
-        shell: pwsh
-        run: choco install doxygen.install --yes --no-progress
+      - name: Install Doxygen and Graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen graphviz
 
       - name: Generate Dictionary documentation
-        shell: pwsh
-        run: |
-          if (-not (Test-Path "lab1/Dictionary/Doxyfile")) {
-            throw "Dictionary Doxyfile was not found."
-          }
-
-          Push-Location "lab1/Dictionary"
-          try {
-            doxygen Doxyfile
-            if ($LASTEXITCODE -ne 0) {
-              throw "Dictionary Doxygen generation failed."
-            }
-          }
-          finally {
-            Pop-Location
-          }
+        working-directory: lab1/Dictionary
+        run: doxygen Doxyfile
 
       - name: Generate Set documentation
-        shell: pwsh
+        working-directory: lab1/Set
+        run: doxygen Doxyfile
+
+      - name: Assemble documentation website
+        shell: bash
         run: |
-          if (-not (Test-Path "lab1/Set/Doxyfile")) {
-            throw "Set Doxyfile was not found."
-          }
+          mkdir -p _site/dictionary _site/set
 
-          Push-Location "lab1/Set"
-          try {
-            doxygen Doxyfile
-            if ($LASTEXITCODE -ne 0) {
-              throw "Set Doxygen generation failed."
-            }
-          }
-          finally {
-            Pop-Location
-          }
+          cp -a lab1/Dictionary/docs/html/. _site/dictionary/
+          cp -a lab1/Set/docs/html/. _site/set/
 
-      - name: Upload Doxygen documentation
-        if: always()
-        uses: actions/upload-artifact@v4
+          cat > _site/index.html <<'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Lab 1 Documentation</title>
+          </head>
+          <body>
+            <h1>Lab 1 Documentation</h1>
+            <h2>Projects</h2>
+            <ul>
+              <li><a href="dictionary/index.html">English-Russian Dictionary</a></li>
+              <li><a href="set/index.html">Unordered Cantor Set</a></li>
+            </ul>
+          </body>
+          </html>
+          EOF
+
+      - name: Upload documentation artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: lab1-doxygen-documentation
-          path: |
-            lab1/Dictionary/docs/html/
-            lab1/Set/docs/generated/html/
-          if-no-files-found: warn
+          path: _site
 
-  lint:
-    name: Static analysis
-    runs-on: windows-latest
+  deploy-docs:
+    name: Publish documentation
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: documentation
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install Cppcheck
-        shell: pwsh
-        run: choco install cppcheck --yes --no-progress
-
-      - name: Run Cppcheck
-        shell: pwsh
-        continue-on-error: true
-        run: |
-          $cppcheck = (Get-Command cppcheck.exe -ErrorAction SilentlyContinue).Source
-
-          if (-not $cppcheck) {
-            throw "Cppcheck executable was not found."
-          }
-
-          & $cppcheck --version
-
-          & $cppcheck `
-            --enable=warning,performance,portability `
-            --error-exitcode=1 `
-            --suppress=missingIncludeSystem `
-            lab1/Dictionary lab1/Set
-
-          if ($LASTEXITCODE -ne 0) {
-            Write-Warning "Cppcheck reported errors or could not complete. Review the log."
-          }
-
-  release:
-    name: Create Lab 1 release
-    runs-on: windows-latest
-    needs:
-      - test
-      - coverage
-      - documentation
-    if: startsWith(github.ref, 'refs/tags/v')
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Package Lab 1
-        shell: pwsh
-        run: |
-          Compress-Archive `
-            -Path lab1/Dictionary, lab1/Set `
-            -DestinationPath lab1-windows.zip `
-            -Force
-
-          $hash = (Get-FileHash lab1-windows.zip -Algorithm SHA256).Hash
-          "$hash  lab1-windows.zip" | Out-File SHA256.txt -Encoding ascii
-
-      - name: Publish GitHub release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: Lab 1 - Dictionary and Unordered Cantor Set
-          files: |
-            lab1-windows.zip
-            SHA256.txt
-          generate_release_notes: true
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
