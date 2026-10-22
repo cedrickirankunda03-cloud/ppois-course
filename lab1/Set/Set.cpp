@@ -1,3 +1,4 @@
+
 #include "Set.h"
 #include <algorithm>
 #include <cctype>
@@ -17,7 +18,6 @@ std::string removeSpaces(const std::string& text)
     return result;
 }
 
-
 std::string canonicalElement(const std::string& text)
 {
     std::string value = removeSpaces(text);
@@ -33,7 +33,7 @@ std::string canonicalElement(const std::string& text)
     std::string part;
     int depth = 0;
 
-    for (int i = 1; i < value.size() - 1; i++)
+    for (int i = 1; i < static_cast<int>(value.size()) - 1; i++)
     {
         char ch = value[i];
 
@@ -62,7 +62,7 @@ std::string canonicalElement(const std::string& text)
 
     std::string result = "{";
 
-    for (int i = 0; i < parts.size(); i++)
+    for (int i = 0; i < static_cast<int>(parts.size()); i++)
     {
         if (i > 0)
             result += ",";
@@ -96,7 +96,7 @@ void Set::add(const std::string& element)
 // Remove an element
 void Set::remove(const std::string& element)
 {
-    for (int i = 0; i < elements.size(); i++)
+    for (int i = 0; i < static_cast<int>(elements.size()); i++)
     {
         if (elements[i] == element)
         {
@@ -109,11 +109,10 @@ void Set::remove(const std::string& element)
 // Return the number of elements
 int Set::size() const
 {
-    return elements.size();
+    return static_cast<int>(elements.size());
 }
 
 // Check whether an element exists
-
 bool Set::contains(const std::string& element) const
 {
     for (const std::string& current : elements)
@@ -126,7 +125,7 @@ bool Set::contains(const std::string& element) const
 
     return false;
 }
-    
+
 // Union: combine two sets
 Set Set::operator+(const Set& other) const
 {
@@ -197,13 +196,10 @@ bool Set::operator!=(const Set& other) const
     return !(*this == other);
 }
 
-
 // Copy constructor
 Set::Set(const Set& other)
     : elements(other.elements)
 {
-}
-
 }
 
 // Copy assignment
@@ -222,7 +218,7 @@ std::string Set::toString() const
 {
     std::string result = "{";
 
-    for (int i = 0; i < elements.size(); i++)
+    for (int i = 0; i < static_cast<int>(elements.size()); i++)
     {
         if (i > 0)
         {
@@ -243,7 +239,7 @@ Set Set::fromString(const std::string& text)
     std::string element;
     int depth = 0;
 
-    for (int i = 0; i < text.size(); i++)
+    for (int i = 0; i < static_cast<int>(text.size()); i++)
     {
         char ch = text[i];
 
@@ -295,7 +291,7 @@ Set Set::powerSet() const
     {
         std::string subset = "{";
 
-        for (int i = 0; i < elements.size(); i++)
+        for (int i = 0; i < static_cast<int>(elements.size()); i++)
         {
             if (mask & (1 << i))
             {
@@ -314,15 +310,15 @@ Set Set::powerSet() const
 
     return result;
 }
+
 // Add another set to this set
 Set& Set::operator+=(const Set& other)
 {
     *this = *this + other;
     return *this;
-
 }
 
-// Keep only Common elements
+// Keep only common elements
 Set& Set::operator*=(const Set& other)
 {
     *this = *this * other;
@@ -332,11 +328,12 @@ Set& Set::operator*=(const Set& other)
 // Remove elements from another set
 Set& Set::operator-=(const Set& other)
 {
-    *this = *this -other;
+    *this = *this - other;
     return *this;
 }
-// Check whether an element belongs to the sset
-bool Set::operator[](const std::string& element)const
+
+// Check whether an element belongs to the set
+bool Set::operator[](const std::string& element) const
 {
     return contains(element);
 }
