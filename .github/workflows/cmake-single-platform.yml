@@ -43,8 +43,9 @@ jobs:
         run: ctest --test-dir build/Set -C Release --output-on-failure
 
   coverage:
-    name: Generate coverage reports
+    name: Generate code coverage
     runs-on: windows-latest
+    needs: test
 
     steps:
       - name: Checkout repository
@@ -55,91 +56,204 @@ jobs:
         run: choco install opencppcoverage --yes --no-progress
 
       - name: Configure and build Dictionary
-        shell: pwsh
         run: |
           cmake -S lab1/Dictionary -B build/Dictionary -DCMAKE_BUILD_TYPE=Release
-          if ($LASTEXITCODE -ne 0) { throw "Dictionary configuration failed" }
-
           cmake --build build/Dictionary --config Release
-          if ($LASTEXITCODE -ne 0) { throw "Dictionary build failed" }
 
       - name: Configure and build Set
-        shell: pwsh
         run: |
           cmake -S lab1/Set -B build/Set -DCMAKE_BUILD_TYPE=Release
-          if ($LASTEXITCODE -ne 0) { throw "Set configuration failed" }
-
           cmake --build build/Set --config Release
-          if ($LASTEXITCODE -ne 0) { throw "Set build failed" }
+
+      - name: Locate coverage tool
+        shell: pwsh
+        run: |
+          $coverageExe = Get-ChildItem "C:\Program Files" -Recurse -Filter OpenCppCoverage.exe -ErrorAction SilentlyContinue |
+            Select-Object -First 1 -ExpandProperty FullName
+
+          if (-not $coverageExe) {
+            $coverageExe = (Get-Command OpenCppCoverage.exe -ErrorAction SilentlyContinue).Source
+          }
+
+          if (-not $coverageExe) {
+            throw "OpenCppCoverage.exe was not found."
+          }
+
+          "COVERAGE_EXE=$coverageExe" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Generate Dictionary coverage
         shell: pwsh
         run: |
-          $testExe = Get-ChildItem build/Dictionary -Recurse -Filter DictionaryTests.exe |
+          $testExe = Get-ChildItem "build/Dictionary" -Recurse -Filter DictionaryTests.exe |
             Select-Object -First 1 -ExpandProperty FullName
 
           if (-not $testExe) {
-            throw "DictionaryTests.exe was not found"
-          }
-
-          $coverageExe = Get-ChildItem "C:\Program Files\OpenCppCoverage" -Recurse -Filter OpenCppCoverage.exe -ErrorAction SilentlyContinue |
-            Select-Object -First 1 -ExpandProperty FullName
-
-          if (-not $coverageExe) {
-            $coverageExe = Get-Command OpenCppCoverage.exe -ErrorAction SilentlyContinue |
-              Select-Object -ExpandProperty Source
-          }
-
-          if (-not $coverageExe) {
-            throw "OpenCppCoverage.exe was not found"
+            throw "DictionaryTests.exe was not found. Check the test executable name."
           }
 
           New-Item -ItemType Directory -Force -Path coverage | Out-Null
 
-          & $coverageExe `
+          & $env:COVERAGE_EXE `
             --sources "$env:GITHUB_WORKSPACE\lab1\Dictionary" `
             --export_type "html:coverage/Dictionary" `
             --working_dir "$env:GITHUB_WORKSPACE\lab1\Dictionary" `
             -- $testExe
 
           if ($LASTEXITCODE -ne 0) {
-            throw "Dictionary coverage generation failed"
+            throw "Dictionary coverage generation failed."
           }
 
       - name: Generate Set coverage
         shell: pwsh
         run: |
-          $testExe = Get-ChildItem build/Set -Recurse -Filter SetTests.exe |
+          $testExe = Get-ChildItem "build/Set" -Recurse -Filter SetTests.exe |
             Select-Object -First 1 -ExpandProperty FullName
 
           if (-not $testExe) {
-            throw "SetTests.exe was not found"
-          }
-
-          $coverageExe = Get-ChildItem "C:\Program Files\OpenCppCoverage" -Recurse -Filter OpenCppCoverage.exe -ErrorAction SilentlyContinue |
-            Select-Object -First 1 -ExpandProperty FullName
-
-          if (-not $coverageExe) {
-            $coverageExe = Get-Command OpenCppCoverage.exe -ErrorAction SilentlyContinue |
-              Select-Object -ExpandProperty Source
-          }
-
-          if (-not $coverageExe) {
-            throw "OpenCppCoverage.exe was not found"
+            throw "SetTests.exe was not found. Check the test executable name."
           }
 
           New-Item -ItemType Directory -Force -Path coverage | Out-Null
 
-          & $coverageExe `
+          & $env:COVERAGE_EXE `
             --sources "$env:GITHUB_WORKSPACE\lab1\Set" `
             --export_type "html:coverage/Set" `
             --working_dir "$env:GITHUB_WORKSPACE\lab1\Set" `
             -- $testExe
 
           if ($LASTEXITCODE -ne 0) {
-            throw "Set coverage generation failed"
+            throw "Set coverage generation failed."
           }
 
       - name: Upload coverage reports
         if: always()
-        uses: actions
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab1-coverage-reports
+          path: coverage/
+          if-no-files-found: warn
+
+  documentation:
+    name: Generate Doxygen documentation
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Doxygen
+        shell: pwsh
+        run: choco install doxygen.install --yes --no-progress
+
+      - name: Generate Dictionary documentation
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "lab1/Dictionary/Doxyfile")) {
+            throw "Dictionary Doxyfile was not found."
+          }
+
+          Push-Location "lab1/Dictionary"
+          try {
+            doxygen Doxyfile
+            if ($LASTEXITCODE -ne 0) {
+              throw "Dictionary Doxygen generation failed."
+            }
+          }
+          finally {
+            Pop-Location
+          }
+
+      - name: Generate Set documentation
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "lab1/Set/Doxyfile")) {
+            throw "Set Doxyfile was not found."
+          }
+
+          Push-Location "lab1/Set"
+          try {
+            doxygen Doxyfile
+            if ($LASTEXITCODE -ne 0) {
+              throw "Set Doxygen generation failed."
+            }
+          }
+          finally {
+            Pop-Location
+          }
+
+      - name: Upload Doxygen documentation
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab1-doxygen-documentation
+          path: |
+            lab1/Dictionary/docs/html/
+            lab1/Set/docs/generated/html/
+          if-no-files-found: warn
+
+  lint:
+    name: Static analysis
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Cppcheck
+        shell: pwsh
+        run: choco install cppcheck --yes --no-progress
+
+      - name: Run Cppcheck
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $cppcheck = (Get-Command cppcheck.exe -ErrorAction SilentlyContinue).Source
+
+          if (-not $cppcheck) {
+            throw "Cppcheck executable was not found."
+          }
+
+          & $cppcheck --version
+
+          & $cppcheck `
+            --enable=warning,performance,portability `
+            --error-exitcode=1 `
+            --suppress=missingIncludeSystem `
+            lab1/Dictionary lab1/Set
+
+          if ($LASTEXITCODE -ne 0) {
+            Write-Warning "Cppcheck reported errors or could not complete. Review the log."
+          }
+
+  release:
+    name: Create Lab 1 release
+    runs-on: windows-latest
+    needs:
+      - test
+      - coverage
+      - documentation
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Package Lab 1
+        shell: pwsh
+        run: |
+          Compress-Archive `
+            -Path lab1/Dictionary, lab1/Set `
+            -DestinationPath lab1-windows.zip `
+            -Force
+
+          $hash = (Get-FileHash lab1-windows.zip -Algorithm SHA256).Hash
+          "$hash  lab1-windows.zip" | Out-File SHA256.txt -Encoding ascii
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Lab 1 - Dictionary and Unordered Cantor Set
+          files: |
+            lab1-windows.zip
+            SHA256.txt
+          generate_release_notes: true
