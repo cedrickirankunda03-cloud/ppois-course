@@ -197,10 +197,13 @@ bool Set::operator!=(const Set& other) const
     return !(*this == other);
 }
 
+
 // Copy constructor
 Set::Set(const Set& other)
+    : elements(other.elements)
 {
-    elements = other.elements;
+}
+
 }
 
 // Copy assignment
