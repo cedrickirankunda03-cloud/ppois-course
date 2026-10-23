@@ -31,9 +31,15 @@ jobs:
       - name: Build Dictionary
         run: cmake --build build/Dictionary --config Release
 
+      - name: Copy Dictionary test data
+        shell: pwsh
+        run: |
+          if (Test-Path lab1/Dictionary/dictionary.txt) {
+            Copy-Item lab1/Dictionary/dictionary.txt build/Dictionary/dictionary.txt -Force
+          }
+
       - name: Test Dictionary
-        working-directory: lab1/Dictionary
-        run: ctest --test-dir ../../build/Dictionary -C Release --output-on-failure
+        run: ctest --test-dir build/Dictionary -C Release --output-on-failure
 
       - name: Configure Set
         run: cmake -S lab1/Set -B build/Set -DCMAKE_BUILD_TYPE=Release
@@ -42,8 +48,7 @@ jobs:
         run: cmake --build build/Set --config Release
 
       - name: Test Set
-        working-directory: lab1/Set
-        run: ctest --test-dir ../../build/Set -C Release --output-on-failure
+        run: ctest --test-dir build/Set -C Release --output-on-failure
 
   coverage:
     name: Code coverage
@@ -85,29 +90,32 @@ jobs:
           }
 
           if (-not $coverageExe) {
-            throw "OpenCppCoverage.exe was not found after installation."
+            throw "OpenCppCoverage.exe was not found."
           }
 
           "OPENCPPCOVERAGE_EXE=$coverageExe" >> $env:GITHUB_ENV
           Write-Host "Coverage tool found: $coverageExe"
 
-      - name: Configure and build Dictionary
+      - name: Configure and build Dictionary for coverage
         run: |
-          cmake -S lab1/Dictionary -B build/Dictionary -DCMAKE_BUILD_TYPE=Release
-          cmake --build build/Dictionary --config Release
+          cmake -S lab1/Dictionary -B build/Dictionary -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build/Dictionary --config Debug
 
-      - name: Configure and build Set
+      - name: Configure and build Set for coverage
         run: |
-          cmake -S lab1/Set -B build/Set -DCMAKE_BUILD_TYPE=Release
-          cmake --build build/Set --config Release
+          cmake -S lab1/Set -B build/Set -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build/Set --config Debug
 
       - name: Generate Dictionary coverage
         shell: pwsh
-        working-directory: lab1/Dictionary
         run: |
-          New-Item -ItemType Directory -Force ../../coverage/Dictionary | Out-Null
+          New-Item -ItemType Directory -Force coverage/Dictionary | Out-Null
 
-          $test = Get-ChildItem ../../build/Dictionary -Filter "*Tests.exe" -Recurse |
+          if (Test-Path lab1/Dictionary/dictionary.txt) {
+            Copy-Item lab1/Dictionary/dictionary.txt build/Dictionary/dictionary.txt -Force
+          }
+
+          $test = Get-ChildItem build/Dictionary -Filter "*Tests.exe" -Recurse |
             Select-Object -First 1
 
           if (-not $test) {
@@ -117,7 +125,7 @@ jobs:
           & $env:OPENCPPCOVERAGE_EXE `
             --sources "$env:GITHUB_WORKSPACE\lab1\Dictionary" `
             --working_dir "$env:GITHUB_WORKSPACE\lab1\Dictionary" `
-            --export_type "html:../../coverage/Dictionary" `
+            --export_type "html:$env:GITHUB_WORKSPACE\coverage\Dictionary" `
             -- $test.FullName
 
           if ($LASTEXITCODE -ne 0) {
@@ -126,11 +134,10 @@ jobs:
 
       - name: Generate Set coverage
         shell: pwsh
-        working-directory: lab1/Set
         run: |
-          New-Item -ItemType Directory -Force ../../coverage/Set | Out-Null
+          New-Item -ItemType Directory -Force coverage/Set | Out-Null
 
-          $test = Get-ChildItem ../../build/Set -Filter "*Tests.exe" -Recurse |
+          $test = Get-ChildItem build/Set -Filter "*Tests.exe" -Recurse |
             Select-Object -First 1
 
           if (-not $test) {
@@ -140,7 +147,7 @@ jobs:
           & $env:OPENCPPCOVERAGE_EXE `
             --sources "$env:GITHUB_WORKSPACE\lab1\Set" `
             --working_dir "$env:GITHUB_WORKSPACE\lab1\Set" `
-            --export_type "html:../../coverage/Set" `
+            --export_type "html:$env:GITHUB_WORKSPACE\coverage\Set" `
             -- $test.FullName
 
           if ($LASTEXITCODE -ne 0) {
@@ -314,6 +321,8 @@ jobs:
       - name: Create ZIP and SHA256 checksum
         shell: pwsh
         run: |
+          New-Item -ItemType Directory -Force release | Out-Null
+
           Compress-Archive `
             -Path release/package/* `
             -DestinationPath release/lab1-windows.zip `
