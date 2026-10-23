@@ -32,7 +32,8 @@ jobs:
         run: cmake --build build/Dictionary --config Release
 
       - name: Test Dictionary
-        run: ctest --test-dir build/Dictionary -C Release --output-on-failure
+        working-directory: lab1/Dictionary
+        run: ctest --test-dir ../../build/Dictionary -C Release --output-on-failure
 
       - name: Configure Set
         run: cmake -S lab1/Set -B build/Set -DCMAKE_BUILD_TYPE=Release
@@ -41,7 +42,8 @@ jobs:
         run: cmake --build build/Set --config Release
 
       - name: Test Set
-        run: ctest --test-dir build/Set -C Release --output-on-failure
+        working-directory: lab1/Set
+        run: ctest --test-dir ../../build/Set -C Release --output-on-failure
 
   coverage:
     name: Code coverage
@@ -101,10 +103,11 @@ jobs:
 
       - name: Generate Dictionary coverage
         shell: pwsh
+        working-directory: lab1/Dictionary
         run: |
-          New-Item -ItemType Directory -Force coverage/Dictionary | Out-Null
+          New-Item -ItemType Directory -Force ../../coverage/Dictionary | Out-Null
 
-          $test = Get-ChildItem build/Dictionary -Filter "*Tests.exe" -Recurse |
+          $test = Get-ChildItem ../../build/Dictionary -Filter "*Tests.exe" -Recurse |
             Select-Object -First 1
 
           if (-not $test) {
@@ -113,7 +116,8 @@ jobs:
 
           & $env:OPENCPPCOVERAGE_EXE `
             --sources "$env:GITHUB_WORKSPACE\lab1\Dictionary" `
-            --export_type "html:coverage/Dictionary" `
+            --working_dir "$env:GITHUB_WORKSPACE\lab1\Dictionary" `
+            --export_type "html:../../coverage/Dictionary" `
             -- $test.FullName
 
           if ($LASTEXITCODE -ne 0) {
@@ -122,10 +126,11 @@ jobs:
 
       - name: Generate Set coverage
         shell: pwsh
+        working-directory: lab1/Set
         run: |
-          New-Item -ItemType Directory -Force coverage/Set | Out-Null
+          New-Item -ItemType Directory -Force ../../coverage/Set | Out-Null
 
-          $test = Get-ChildItem build/Set -Filter "*Tests.exe" -Recurse |
+          $test = Get-ChildItem ../../build/Set -Filter "*Tests.exe" -Recurse |
             Select-Object -First 1
 
           if (-not $test) {
@@ -134,7 +139,8 @@ jobs:
 
           & $env:OPENCPPCOVERAGE_EXE `
             --sources "$env:GITHUB_WORKSPACE\lab1\Set" `
-            --export_type "html:coverage/Set" `
+            --working_dir "$env:GITHUB_WORKSPACE\lab1\Set" `
+            --export_type "html:../../coverage/Set" `
             -- $test.FullName
 
           if ($LASTEXITCODE -ne 0) {
@@ -185,14 +191,12 @@ jobs:
           sudo apt-get install -y doxygen graphviz
 
       - name: Generate Dictionary documentation
-        run: |
-          cd lab1/Dictionary
-          doxygen Doxyfile
+        working-directory: lab1/Dictionary
+        run: doxygen Doxyfile
 
       - name: Generate Set documentation
-        run: |
-          cd lab1/Set
-          doxygen Doxyfile
+        working-directory: lab1/Set
+        run: doxygen Doxyfile
 
       - name: Prepare website
         run: |
@@ -310,8 +314,6 @@ jobs:
       - name: Create ZIP and SHA256 checksum
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force release | Out-Null
-
           Compress-Archive `
             -Path release/package/* `
             -DestinationPath release/lab1-windows.zip `
