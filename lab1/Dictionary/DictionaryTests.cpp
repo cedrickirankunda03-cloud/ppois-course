@@ -1,3 +1,4 @@
+
 #include "Dictionary.h"
 #include <gtest/gtest.h>
 #include <fstream>
@@ -6,9 +7,11 @@
 
 using namespace std;
 
+// 1. Test inserting and searching words
 TEST(DictionaryTest, InsertAndSearch)
 {
     Dictionary dictionary;
+
     dictionary.insert("apple", "яблоко");
     dictionary.insert("cat", "кошка");
 
@@ -17,6 +20,7 @@ TEST(DictionaryTest, InsertAndSearch)
     EXPECT_EQ(dictionary.search("dog"), "");
 }
 
+// 2. Test dictionary size
 TEST(DictionaryTest, Size)
 {
     Dictionary dictionary;
@@ -30,6 +34,7 @@ TEST(DictionaryTest, Size)
     EXPECT_EQ(dictionary.size(), 3);
 }
 
+// 3. Test changing a translation
 TEST(DictionaryTest, ChangeTranslation)
 {
     Dictionary dictionary;
@@ -43,6 +48,7 @@ TEST(DictionaryTest, ChangeTranslation)
     EXPECT_EQ(dictionary["apple"], "новое_слово");
 }
 
+// 4. Test removing a leaf node
 TEST(DictionaryTest, RemoveLeaf)
 {
     Dictionary dictionary;
@@ -57,6 +63,7 @@ TEST(DictionaryTest, RemoveLeaf)
     EXPECT_EQ(dictionary.size(), 1);
 }
 
+// 5. Test removing a node with one child
 TEST(DictionaryTest, RemoveNodeWithOneChild)
 {
     Dictionary dictionary;
@@ -71,6 +78,7 @@ TEST(DictionaryTest, RemoveNodeWithOneChild)
     EXPECT_EQ(dictionary.size(), 1);
 }
 
+// 6. Test removing a node with two children
 TEST(DictionaryTest, RemoveNodeWithTwoChildren)
 {
     Dictionary dictionary;
@@ -87,6 +95,7 @@ TEST(DictionaryTest, RemoveNodeWithTwoChildren)
     EXPECT_EQ(dictionary.size(), 2);
 }
 
+// 7. Test searching for a missing word
 TEST(DictionaryTest, NotFound)
 {
     Dictionary dictionary;
@@ -96,6 +105,7 @@ TEST(DictionaryTest, NotFound)
     EXPECT_EQ(dictionary.search("house"), "");
 }
 
+// 8. Test inserting a duplicate word
 TEST(DictionaryTest, DuplicateWord)
 {
     Dictionary dictionary;
@@ -107,6 +117,7 @@ TEST(DictionaryTest, DuplicateWord)
     EXPECT_EQ(dictionary.search("apple"), "яблоко");
 }
 
+// 9. Test the += operator with std::string
 TEST(DictionaryTest, PlusEqualString)
 {
     Dictionary dictionary;
@@ -122,6 +133,7 @@ TEST(DictionaryTest, PlusEqualString)
     EXPECT_EQ(dictionary.search("apple"), "яблоко");
 }
 
+// 10. Test the += operator with const char*
 TEST(DictionaryTest, PlusEqualCString)
 {
     Dictionary dictionary;
@@ -137,6 +149,7 @@ TEST(DictionaryTest, PlusEqualCString)
     EXPECT_EQ(dictionary.search("dog"), "собака");
 }
 
+// 11. Test the [] operator with a missing word
 TEST(DictionaryTest, BracketMissingWord)
 {
     Dictionary dictionary;
@@ -144,6 +157,7 @@ TEST(DictionaryTest, BracketMissingWord)
     EXPECT_EQ(dictionary["house"], "");
 }
 
+// 12. Test searching through different BST paths
 TEST(DictionaryTest, SearchTreePaths)
 {
     Dictionary dictionary;
@@ -162,6 +176,7 @@ TEST(DictionaryTest, SearchTreePaths)
     EXPECT_EQ(dictionary.search("unknown"), "");
 }
 
+// 13. Test loading words from a file
 TEST(DictionaryTest, LoadFromFile)
 {
     Dictionary dictionary;
@@ -175,6 +190,7 @@ TEST(DictionaryTest, LoadFromFile)
     EXPECT_EQ(dictionary.search("house"), "дом");
 }
 
+// 14. Test replacing the existing dictionary when loading
 TEST(DictionaryTest, LoadReplacesDictionary)
 {
     Dictionary dictionary;
@@ -189,6 +205,7 @@ TEST(DictionaryTest, LoadReplacesDictionary)
     EXPECT_EQ(dictionary.search("cat"), "кот");
 }
 
+// 15. Test saving the dictionary to a file
 TEST(DictionaryTest, SaveToFile)
 {
     Dictionary dictionary;
@@ -205,6 +222,7 @@ TEST(DictionaryTest, SaveToFile)
     file.close();
 }
 
+// 16. Test loading a file that does not exist
 TEST(DictionaryTest, MissingFile)
 {
     Dictionary dictionary;
@@ -214,6 +232,7 @@ TEST(DictionaryTest, MissingFile)
     EXPECT_EQ(dictionary.size(), 0);
 }
 
+// 17. Test an empty dictionary
 TEST(DictionaryTest, EmptyDictionary)
 {
     Dictionary dictionary;
@@ -222,6 +241,7 @@ TEST(DictionaryTest, EmptyDictionary)
     EXPECT_EQ(dictionary.search("apple"), "");
 }
 
+// 18. Test removing the only node
 TEST(DictionaryTest, RemoveOnlyNode)
 {
     Dictionary dictionary;
@@ -234,6 +254,7 @@ TEST(DictionaryTest, RemoveOnlyNode)
     EXPECT_EQ(dictionary.search("apple"), "");
 }
 
+// 19. Test removing a word that does not exist
 TEST(DictionaryTest, RemoveMissingWord)
 {
     Dictionary dictionary;
@@ -246,6 +267,7 @@ TEST(DictionaryTest, RemoveMissingWord)
     EXPECT_EQ(dictionary.search("apple"), "яблоко");
 }
 
+// 20. Test removing a node with a deep successor
 TEST(DictionaryTest, RemoveWithDeepSuccessor)
 {
     Dictionary dictionary;
@@ -264,6 +286,7 @@ TEST(DictionaryTest, RemoveWithDeepSuccessor)
     EXPECT_EQ(dictionary.size(), 3);
 }
 
+// 21. Test displaying the dictionary
 TEST(DictionaryTest, Display)
 {
     Dictionary dictionary;
@@ -276,6 +299,7 @@ TEST(DictionaryTest, Display)
     EXPECT_EQ(dictionary.size(), 2);
 }
 
+// 22. Test the Dictionary destructor
 TEST(DictionaryTest, Destructor)
 {
     {

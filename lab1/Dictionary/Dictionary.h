@@ -41,8 +41,8 @@ public:
     Dictionary();
     ~Dictionary();
 
-    void insert(const std::string& english,
-                const std::string& russian);
+   bool insert(const std::string& english,
+            const std::string& russian);
 
     Dictionary& operator+=(const std::string& english);
 
