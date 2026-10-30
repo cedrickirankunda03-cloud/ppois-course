@@ -1,3 +1,4 @@
+
 #include "Dictionary.h"
 #include <iostream>
 #include <string>
@@ -7,6 +8,7 @@
 
 using namespace std;
 
+// Convert Windows Unicode to UTF-8
 string wideToUtf8(const wstring& text)
 {
     if (text.empty())
@@ -25,7 +27,12 @@ string wideToUtf8(const wstring& text)
         nullptr
     );
 
-    string result(size - 1, '\0');
+    if (size == 0)
+    {
+        return "";
+    }
+
+    string result(size, '\0');
 
     WideCharToMultiByte(
         CP_UTF8,
@@ -38,9 +45,12 @@ string wideToUtf8(const wstring& text)
         nullptr
     );
 
+    result.pop_back();
+
     return result;
 }
 
+// Convert UTF-8 to Windows Unicode
 wstring utf8ToWide(const string& text)
 {
     if (text.empty())
@@ -57,7 +67,12 @@ wstring utf8ToWide(const string& text)
         0
     );
 
-    wstring result(size - 1, L'\0');
+    if (size == 0)
+    {
+        return L"";
+    }
+
+    wstring result(size, L'\0');
 
     MultiByteToWideChar(
         CP_UTF8,
@@ -68,11 +83,14 @@ wstring utf8ToWide(const string& text)
         size
     );
 
+    result.pop_back();
+
     return result;
 }
 
 int main()
 {
+    // Enable Unicode input and output on Windows
     _setmode(_fileno(stdin), _O_U16TEXT);
     _setmode(_fileno(stdout), _O_U16TEXT);
 
@@ -104,6 +122,7 @@ int main()
         wcin >> choice;
         wcin.ignore(10000, L'\n');
 
+        // Add word
         if (choice == 1)
         {
             wstring englishWide;
@@ -116,11 +135,22 @@ int main()
             wcout << L"Enter Russian translation: ";
             getline(wcin, russian);
 
-            dictionary.insert(
+            bool added = dictionary.insert(
                 wideToUtf8(englishWide),
                 wideToUtf8(russian)
             );
+
+            if (added)
+            {
+                wcout << L"Word added successfully!\n";
+            }
+            else
+            {
+                wcout << L"Word already exists!\n";
+            }
         }
+
+        // Remove word
         else if (choice == 2)
         {
             wstring englishWide;
@@ -131,6 +161,8 @@ int main()
 
             dictionary -= wideToUtf8(englishWide);
         }
+
+        // Search word
         else if (choice == 3)
         {
             wstring englishWide;
@@ -153,6 +185,8 @@ int main()
                       << L"\n";
             }
         }
+
+        // Change translation
         else if (choice == 4)
         {
             wstring englishWide;
@@ -178,16 +212,22 @@ int main()
                 wcout << L"Translation changed.\n";
             }
         }
+
+        // Display dictionary
         else if (choice == 5)
         {
             dictionary.display();
         }
+
+        // Count words
         else if (choice == 6)
         {
             wcout << L"Number of words: "
                   << dictionary.size()
                   << L"\n";
         }
+
+        // Load dictionary from file
         else if (choice == 7)
         {
             wstring filenameWide;
@@ -200,6 +240,8 @@ int main()
                 wideToUtf8(filenameWide)
             );
         }
+
+        // Save dictionary to file
         else if (choice == 8)
         {
             wstring filenameWide;
@@ -212,10 +254,13 @@ int main()
                 wideToUtf8(filenameWide)
             );
         }
+
+        // Exit
         else if (choice == 9)
         {
             wcout << L"Goodbye!\n";
         }
+
         else
         {
             wcout << L"Invalid option.\n";

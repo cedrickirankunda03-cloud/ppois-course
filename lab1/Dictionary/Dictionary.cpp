@@ -1,3 +1,4 @@
+
 #include "Dictionary.h"
 #include <iostream>
 #include <fstream>
@@ -22,7 +23,12 @@ static wstring dictionaryUtf8ToWide(const string& text)
         0
     );
 
-    wstring result(size - 1, L'\0');
+    if (size == 0)
+    {
+        return L"";
+    }
+
+    wstring result(size, L'\0');
 
     MultiByteToWideChar(
         CP_UTF8,
@@ -32,6 +38,8 @@ static wstring dictionaryUtf8ToWide(const string& text)
         &result[0],
         size
     );
+
+    result.pop_back();
 
     return result;
 }
@@ -73,42 +81,45 @@ void Dictionary::deleteTree(Node* node)
     delete node;
 }
 
-void Dictionary::insert(
+// Insert a new word into the dictionary
+bool Dictionary::insert(
     const string& english,
     const string& russian)
 {
     if (root == nullptr)
     {
         root = createNode(english, russian);
-        return;
+        return true;
     }
 
     Node* current = root;
 
     while (true)
     {
+        // Check for duplicate words
         if (english == current->english)
         {
-            wcout << L"Word already exists." << endl;
-            return;
+            return false;
         }
 
+        // Insert into the left subtree
         if (english < current->english)
         {
             if (current->left == nullptr)
             {
                 current->left = createNode(english, russian);
-                return;
+                return true;
             }
 
             current = current->left;
         }
         else
         {
+            // Insert into the right subtree
             if (current->right == nullptr)
             {
                 current->right = createNode(english, russian);
-                return;
+                return true;
             }
 
             current = current->right;
@@ -123,7 +134,14 @@ Dictionary& Dictionary::operator+=(const string& english)
     cout << "Enter Russian translation: ";
     getline(cin, russian);
 
-    insert(english, russian);
+    if (insert(english, russian))
+    {
+        cout << "Word added successfully." << endl;
+    }
+    else
+    {
+        cout << "Word already exists." << endl;
+    }
 
     return *this;
 }
@@ -254,6 +272,7 @@ Dictionary::Node* Dictionary::removeNode(
     }
     else
     {
+        // Node has no left child
         if (node->left == nullptr)
         {
             Node* temp = node->right;
@@ -261,6 +280,7 @@ Dictionary::Node* Dictionary::removeNode(
             return temp;
         }
 
+        // Node has no right child
         if (node->right == nullptr)
         {
             Node* temp = node->left;
@@ -268,6 +288,7 @@ Dictionary::Node* Dictionary::removeNode(
             return temp;
         }
 
+        // Node has two children
         Node* temp = findMinimum(node->right);
 
         node->english = temp->english;
