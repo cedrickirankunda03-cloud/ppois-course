@@ -1,0 +1,57 @@
+# Build directories
+build/
+build-*/
+cmake-build-*/
+out/
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+compile_commands.json
+CTestTestfile.cmake
+Testing/
+
+# Compiled files
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dll
+*.exe
+*.out
+*.pdb
+*.ilk
+
+# Test and coverage results
+*.gcda
+*.gcno
+*.gcov
+coverage/
+coverage-report/
+coverage.html
+coverage.xml
+coverage-summary.txt
+
+# IDE files
+.vscode/
+.idea/
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.user
+*.suo
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.bak
+*~
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini

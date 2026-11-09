@@ -1,0 +1,170 @@
+```bat
+:: ============================================================
+:: PART 1 - DICTIONARY: BUILD, TEST AND RUN
+:: ============================================================
+
+:: Open the Dictionary project folder
+cd /d "C:\Users\Cedrick\OneDrive\ppois for my labs\lab1\Dictionary"
+
+:: Display project files
+dir
+
+:: Configure the project
+cmake -S . -B build
+
+:: Build the application and unit tests
+cmake --build build --config Debug
+
+:: Run all Dictionary unit tests
+build\DictionaryTests.exe
+
+:: Run the Dictionary application
+build\Dictionary.exe
+
+:: Display the saved dictionary file
+type dictionary.txt
+
+
+:: ============================================================
+:: PART 2 - DICTIONARY: CTEST
+:: ============================================================
+
+:: List tests discovered by CTest
+ctest --test-dir build -C Debug -N
+
+:: Run tests discovered by CTest
+ctest --test-dir build -C Debug -N
+
+:: If CTest reports no tests, use this direct command again
+build\DictionaryTests.exe
+
+
+:: ============================================================
+:: PART 3 - DICTIONARY: DOCUMENTATION
+:: ============================================================
+
+:: Check the Doxygen version
+doxygen --version
+
+:: Generate documentation from Doxyfile
+doxygen Doxyfile
+
+:: Open HTML documentation if generated
+if exist docs\html\index.html start "" "docs\html\index.html"
+
+
+:: ============================================================
+:: PART 4 - DICTIONARY: COVERAGE
+:: ============================================================
+
+:: Open the existing coverage report folder
+start "" "coverage-report"
+
+:: Open the existing coverage XML file
+start "" "coverage.xml"
+
+:: Check whether OpenCppCoverage is available
+where OpenCppCoverage
+
+
+:: ============================================================
+:: PART 5 - SET: COMPILE AND RUN
+:: ============================================================
+
+:: Open the Set project folder
+cd /d "C:\Users\Cedrick\OneDrive\ppois for my labs\lab1\Set"
+
+:: Display project files
+dir
+
+:: Compile Set.cpp and main.cpp
+cl /EHsc Set.cpp main.cpp /Fe:Set.exe
+
+:: Run the Set application
+Set.exe
+
+
+:: ============================================================
+:: PART 6 - SET: RECOMPILE AFTER CHANGES
+:: ============================================================
+
+:: Run these two commands again whenever you change Set code
+cl /EHsc Set.cpp main.cpp /Fe:Set.exe
+Set.exe
+
+
+:: ============================================================
+:: PART 7 - GITHUB: CHECK CHANGES
+:: ============================================================
+
+:: Open the repository root
+cd /d "C:\Users\Cedrick\OneDrive\ppois for my labs"
+
+:: Show the current branch
+git branch --show-current
+
+:: Show modified files
+git status
+
+:: Review unstaged changes
+git diff
+
+
+:: ============================================================
+:: PART 8 - GITHUB: STAGE, COMMIT AND PUSH
+:: ============================================================
+
+:: Stage Dictionary and Set changes
+git add lab1/Dictionary lab1/Set
+
+:: Review what will be committed
+git diff --cached
+
+:: Check staged and unstaged files
+git status
+
+:: Commit your changes
+git commit -m "Complete dictionary and unordered Cantor set labs"
+
+:: Push the current feature branch
+git push -u origin HEAD
+```
+
+
+
+:: ==========================================
+:: SET LAB: UNIT TESTS, COVERAGE AND DOXYGEN
+:: ==========================================
+
+:: 1. Go to the Set project folder
+cd /d "C:\Users\Cedrick\OneDrive\ppois for my labs\lab1\Set"
+
+:: 2. Rebuild the latest unit tests
+cl /EHsc /Zi Set.cpp SetTests.cpp gtest-all.obj gtest_main.obj /Fe:SetTests.exe /link /DEBUG
+
+:: 3. Run all unit tests
+SetTests.exe
+
+:: 4. Check whether OpenCppCoverage is installed
+where OpenCppCoverage
+
+:: 5. Create the coverage report folder
+if not exist SetCoverageReport mkdir SetCoverageReport
+
+:: 6. Generate the HTML coverage report
+OpenCppCoverage.exe --sources Set.cpp --export_type html:SetCoverageReport -- SetTests.exe
+
+:: 7. Open the coverage report
+start "" "SetCoverageReport\index.html"
+
+:: 8. Check whether Doxygen is installed
+where doxygen
+
+:: 9. Generate Doxygen documentation
+doxygen Doxyfile
+
+:: 10. Find the generated documentation files
+dir docs /s
+
+:: 11. Open the documentation (if this is the correct path)
+start "" "docs\generated\html\index.html"
