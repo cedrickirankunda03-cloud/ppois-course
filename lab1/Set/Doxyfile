@@ -2,9 +2,10 @@
 
 PROJECT_NAME           = "Unordered Cantor Set"
 PROJECT_NUMBER         = 1.0
-PROJECT_BRIEF          = "Lab 1 - Design of Intelligent Systems Software"
+PROJECT_BRIEF          = "C++ implementation of an unordered set - Lab 1"
 
 OUTPUT_DIRECTORY       = docs
+
 INPUT                  = Set.h Set.cpp main.cpp
 RECURSIVE              = NO
 
@@ -14,6 +15,7 @@ EXTRACT_STATIC         = YES
 
 OPTIMIZE_OUTPUT_FOR_C  = NO
 MARKDOWN_SUPPORT       = YES
+
 GENERATE_HTML          = YES
 GENERATE_LATEX         = NO
 

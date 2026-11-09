@@ -24,18 +24,27 @@ cmake_install.cmake
 Makefile
 compile_commands.json
 
-CoverageReport/
-CoverageReport-*/
 
-docs/
-test_output.txt
-empty_dictionary.txt
+# Compiled programs and debug files
+*.pdb
+*.ilk
+*.idb
+*.obj
+*.exe
+
+# Test and coverage output
 LastCoverageResults.log
+coverage.xml
+coverage-report/
+SetCoverageReport/
+TestResults/
+test_output.txt
 
-# Set lab coverage report generated locally
+# Generated build folders
+build/
 
-lab1/Set/SetCoverageReport/
+# Bundled dependency (unless required by the course)
+googletest/
 
-# Generated coverage results
-
-lab1/Set/LastCoverageResults.log
+# Accidental temporary file
+.gitignorenotepad .txt
