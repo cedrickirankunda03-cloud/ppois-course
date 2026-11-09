@@ -1,50 +1,64 @@
+﻿# Build artifacts
 build/
-out/
-bin/
-obj/
-
+build-*/
+build-check/
 *.o
 *.obj
 *.exe
 *.dll
-*.so
 *.a
-*.pdb
-*.ilk
+*.lib
+*.so
+*.dylib
 
+# Coverage
+*.gcda
+*.gcno
+*.gcov
+coverage.html
+coverage.*.html
+coverage.css
+coverage.js
+coverage.functions.html
+coverage.info
+coverage.xml
+
+# IDE
 .vscode/
-.vs/
-*.suo
+.idea/
 *.user
-*.userosscache
+*.swp
+*.swo
 
+# Archives
+*.zip
+*.rar
+*.tar.gz
+*.7z
+
+# Dumps and temp files
+headers-dump.txt
+*.tmp
+*.log
+
+# Doxygen output
+docs/doxygen/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Compiler-specific
 CMakeFiles/
 CMakeCache.txt
-cmake_install.cmake
-Makefile
-compile_commands.json
 
+lab2/lab2-final/
 
-# Compiled programs and debug files
-*.pdb
+# Lab1 build artifacts
 *.ilk
-*.idb
-*.obj
-*.exe
+*.pdb
+lab1/Dictionary/test_output.txt
+lab1/Set/SetCoverageReport/
 
-# Test and coverage output
-LastCoverageResults.log
-coverage.xml
-coverage-report/
-SetCoverageReport/
-TestResults/
-test_output.txt
-
-# Generated build folders
-build/
-
-# Bundled dependency (unless required by the course)
-googletest/
-
-# Accidental temporary file
-.gitignorenotepad .txt
+# Temp helper scripts
+generate-readme.ps1
