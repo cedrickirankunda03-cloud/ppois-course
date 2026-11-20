@@ -1,4 +1,4 @@
-﻿#include "academic/Lecturer.h"
+#include "academic/Lecturer.h"
 #include <iostream>
 
 using namespace std;
@@ -31,7 +31,7 @@ int Lecturer::getCoursesAssigned() const {
     return coursesAssigned;
 }
 
-string Lecturer::getTeachingLevel() const {
+const std::string& Lecturer::getTeachingLevel() const {
     return teachingLevel;
 }
 
@@ -62,3 +62,4 @@ void Lecturer::displayLecturerInformation() const {
     cout << "Teaching Level: "
          << teachingLevel << endl;
 }
+
