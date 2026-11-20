@@ -20,7 +20,7 @@ public:
 
     bool isValid() const;
     double getAmount() const;
-    std::string getScholarshipId() const;
+    const std::string& getScholarshipId() const;
 };
 
 #endif

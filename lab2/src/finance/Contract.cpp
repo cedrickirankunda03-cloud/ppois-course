@@ -27,12 +27,12 @@ Contract::Contract(
     }
 }
 
-std::string Contract::getContractId() const
+const std::string& Contract::getContractId() const
 {
     return contractId;
 }
 
-std::string Contract::getStudentId() const
+const std::string& Contract::getStudentId() const
 {
     return studentId;
 }
@@ -42,13 +42,12 @@ double Contract::getTotalAmount() const
     return totalAmount;
 }
 
-std::string Contract::getContractDate() const
+const std::string& Contract::getContractDate() const
 {
     return contractDate;
 }
 
-std::string Contract::getStatus() const
-{
+const std::string& Contract::getStatus() const {
     return status;
 }
 

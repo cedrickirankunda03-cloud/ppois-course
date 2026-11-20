@@ -12,11 +12,11 @@ Subject::Subject(
     setCredits(credits);
 }
 
-std::string Subject::getName() const {
+const std::string& Subject::getName() const {
     return name;
 }
 
-std::string Subject::getDescription() const {
+const std::string& Subject::getDescription() const {
     return description;
 }
 

@@ -24,7 +24,7 @@ UndergraduateStudent::UndergraduateStudent(
     }
 }
 
-std::string UndergraduateStudent::getSpecialization() const {
+const std::string& UndergraduateStudent::getSpecialization() const {
     return specialization;
 }
 

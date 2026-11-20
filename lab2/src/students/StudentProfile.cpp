@@ -22,23 +22,22 @@ StudentProfile::StudentProfile(
     }
 }
 
-std::string StudentProfile::getStudentId() const
+const std::string& StudentProfile::getStudentId() const
 {
     return studentId;
 }
 
-std::string StudentProfile::getEmail() const
+const std::string& StudentProfile::getEmail() const
 {
     return email;
 }
 
-std::string StudentProfile::getPhoneNumber() const
+const std::string& StudentProfile::getPhoneNumber() const
 {
     return phoneNumber;
 }
 
-std::string StudentProfile::getAddress() const
-{
+const std::string& StudentProfile::getAddress() const {
     return address;
 }
 

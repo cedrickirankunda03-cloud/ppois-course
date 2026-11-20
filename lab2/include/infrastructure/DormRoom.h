@@ -24,8 +24,8 @@ public:
         int roomCapacity
     );
 
-    std::string getRoomId() const;
-    std::string getDormitoryId() const;
+    const std::string& getRoomId() const;
+    const std::string& getDormitoryId() const;
     int getRoomNumber() const;
     int getCapacity() const;
 

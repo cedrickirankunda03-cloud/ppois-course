@@ -27,18 +27,17 @@ Payment::Payment(
     }
 }
 
-std::string Payment::getPaymentId() const
+const std::string& Payment::getPaymentId() const
 {
     return paymentId;
 }
 
-std::string Payment::getContractId() const
+const std::string& Payment::getContractId() const
 {
     return contractId;
 }
 
-std::string Payment::getStudentId() const
-{
+const std::string& Payment::getStudentId() const {
     return studentId;
 }
 

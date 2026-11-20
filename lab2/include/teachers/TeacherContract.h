@@ -22,11 +22,11 @@ public:
         const std::string& endDate
     );
 
-    std::string getContractId() const;
-    std::string getTeacherId() const;
-    std::string getContractType() const;
-    std::string getStartDate() const;
-    std::string getEndDate() const;
+    const std::string& getContractId() const;
+    const std::string& getTeacherId() const;
+    const std::string& getContractType() const;
+    const std::string& getStartDate() const;
+    const std::string& getEndDate() const;
 
     bool isActive() const;
 

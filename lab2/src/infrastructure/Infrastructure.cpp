@@ -22,18 +22,17 @@ Infrastructure::Infrastructure(
     }
 }
 
-std::string Infrastructure::getInfrastructureId() const
+const std::string& Infrastructure::getInfrastructureId() const
 {
     return infrastructureId;
 }
 
-std::string Infrastructure::getInfrastructureName() const
+const std::string& Infrastructure::getInfrastructureName() const
 {
     return infrastructureName;
 }
 
-std::string Infrastructure::getLocation() const
-{
+const std::string& Infrastructure::getLocation() const {
     return location;
 }
 

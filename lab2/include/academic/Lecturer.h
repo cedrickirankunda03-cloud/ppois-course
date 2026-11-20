@@ -1,4 +1,4 @@
-﻿
+
 #ifndef LECTURER_H
 #define LECTURER_H
 
@@ -26,7 +26,7 @@ public:
 
     int getWeeklyTeachingHours() const;
     int getCoursesAssigned() const;
-    std::string getTeachingLevel() const;
+    const std::string& getTeachingLevel() const;
 
     void assignCourse();
     void updateTeachingHours(int hours);

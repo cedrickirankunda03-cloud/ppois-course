@@ -24,11 +24,11 @@ Grade::Grade(
     calculateLetterGrade();
 }
 
-std::string Grade::getStudentId() const {
+const std::string& Grade::getStudentId() const {
     return studentId;
 }
 
-std::string Grade::getSubjectCode() const {
+const std::string& Grade::getSubjectCode() const {
     return subjectCode;
 }
 
@@ -36,7 +36,7 @@ double Grade::getScore() const {
     return score;
 }
 
-std::string Grade::getLetterGrade() const {
+const std::string& Grade::getLetterGrade() const {
     return letterGrade;
 }
 

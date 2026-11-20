@@ -15,23 +15,23 @@ Timetable::Timetable(
     setRoom(room);
 }
 
-std::string Timetable::getSubject() const {
+const std::string& Timetable::getSubject() const {
     return subject;
 }
 
-std::string Timetable::getDay() const {
+const std::string& Timetable::getDay() const {
     return day;
 }
 
-std::string Timetable::getStartTime() const {
+const std::string& Timetable::getStartTime() const {
     return startTime;
 }
 
-std::string Timetable::getEndTime() const {
+const std::string& Timetable::getEndTime() const {
     return endTime;
 }
 
-std::string Timetable::getRoom() const {
+const std::string& Timetable::getRoom() const {
     return room;
 }
 

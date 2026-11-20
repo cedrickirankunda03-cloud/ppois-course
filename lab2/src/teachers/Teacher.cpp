@@ -1,4 +1,4 @@
-﻿
+
 #include "teachers/Teacher.h"
 #include <iostream>
 #include <stdexcept>
@@ -32,7 +32,7 @@ Teacher::Teacher(
     }
 }
 
-std::string Teacher::getTeacherId() const {
+const std::string& Teacher::getTeacherId() const {
     return teacherId;
 }
 
@@ -40,7 +40,7 @@ std::string Teacher::getFullName() const {
     return firstName + " " + lastName;
 }
 
-std::string Teacher::getDepartment() const {
+const std::string& Teacher::getDepartment() const {
     return department;
 }
 

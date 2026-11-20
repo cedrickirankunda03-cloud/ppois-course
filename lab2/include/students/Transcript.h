@@ -27,7 +27,7 @@ public:
     const std::vector<Grade>& getGrades() const;
 
     // Get academic year
-    std::string getAcademicYear() const;
+    const std::string& getAcademicYear() const;
 };
 
 #endif

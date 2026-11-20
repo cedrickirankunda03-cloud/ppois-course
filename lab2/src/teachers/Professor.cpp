@@ -1,4 +1,4 @@
-﻿#include "teachers/Professor.h"
+#include "teachers/Professor.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -33,11 +33,11 @@ Professor::Professor(
     }
 }
 
-std::string Professor::getAcademicRank() const {
+const std::string& Professor::getAcademicRank() const {
     return academicRank;
 }
 
-std::string Professor::getResearchField() const {
+const std::string& Professor::getResearchField() const {
     return researchField;
 }
 

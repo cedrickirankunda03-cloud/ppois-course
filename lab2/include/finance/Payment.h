@@ -22,9 +22,9 @@ public:
             const std::string& studentId,
             double amount);
 
-    std::string getPaymentId() const;
-    std::string getContractId() const;
-    std::string getStudentId() const;
+    const std::string& getPaymentId() const;
+    const std::string& getContractId() const;
+    const std::string& getStudentId() const;
     double getAmount() const;
 
     void updateAmount(double amount);

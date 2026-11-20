@@ -43,13 +43,12 @@ DormRoom::DormRoom(
     }
 }
 
-std::string DormRoom::getRoomId() const
+const std::string& DormRoom::getRoomId() const
 {
     return roomId;
 }
 
-std::string DormRoom::getDormitoryId() const
-{
+const std::string& DormRoom::getDormitoryId() const {
     return dormitoryId;
 }
 

@@ -17,9 +17,9 @@ public:
        int numberOfFloors
     );
 
-    std::string getBuildingId() const;
-    std::string getBuildingName() const;
-     std::string getAddressId() const;
+    const std::string& getBuildingId() const;
+    const std::string& getBuildingName() const;
+     const std::string& getAddressId() const;
 
     void updateBuildingName(const std::string& name);
     void updateNumberOfFloors(int floors);

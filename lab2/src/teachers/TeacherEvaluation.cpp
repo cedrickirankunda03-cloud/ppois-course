@@ -23,11 +23,11 @@ TeacherEvaluation::TeacherEvaluation(
 }
 
 // Getters
-std::string TeacherEvaluation::getEvaluationId() const {
+const std::string& TeacherEvaluation::getEvaluationId() const {
     return evaluationId;
 }
 
-std::string TeacherEvaluation::getTeacherId() const {
+const std::string& TeacherEvaluation::getTeacherId() const {
     return teacherId;
 }
 
@@ -35,7 +35,7 @@ double TeacherEvaluation::getTeachingScore() const {
     return teachingScore;
 }
 
-std::string TeacherEvaluation::getComments() const {
+const std::string& TeacherEvaluation::getComments() const {
     return comments;
 }
 

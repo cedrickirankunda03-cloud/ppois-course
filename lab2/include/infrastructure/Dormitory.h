@@ -20,8 +20,8 @@ public:
               const std::string& address,
               int totalRooms);
 
-    std::string getDormitoryId() const;
-    std::string getDormitoryName() const;
+    const std::string& getDormitoryId() const;
+    const std::string& getDormitoryName() const;
     int getTotalRooms() const;
 
     void updateAddress(const std::string& address);

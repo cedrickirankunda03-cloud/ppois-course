@@ -20,8 +20,7 @@ ScholarshipManager::ScholarshipManager(
     }
 }
 
-std::string ScholarshipManager::getManagerId() const
-{
+const std::string& ScholarshipManager::getManagerId() const {
     return managerId;
 }
 

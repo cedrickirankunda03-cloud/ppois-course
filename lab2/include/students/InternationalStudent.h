@@ -26,9 +26,9 @@ public:
         int proficiency
     );
 
-    std::string getHomeCountry() const;
-    std::string getPassportNumber() const;
-    std::string getVisaExpiryDate() const;
+    const std::string& getHomeCountry() const;
+    const std::string& getPassportNumber() const;
+    const std::string& getVisaExpiryDate() const;
 
     void renewVisa(const std::string& newExpiryDate);
     void updateLanguageProficiency(int level);

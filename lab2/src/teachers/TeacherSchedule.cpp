@@ -12,7 +12,7 @@ TeacherSchedule::TeacherSchedule(const std::string& teacherId)
     }
 }
 
-std::string TeacherSchedule::getTeacherId() const {
+const std::string& TeacherSchedule::getTeacherId() const {
     return teacherId;
 }
 
@@ -36,6 +36,6 @@ int TeacherSchedule::getLessonCount() const {
     return static_cast<int>(lessons.size());
 }
 
-std::vector<std::string> TeacherSchedule::getLessons() const {
+const std::vector<std::string>& TeacherSchedule::getLessons() const {
     return lessons;
 }

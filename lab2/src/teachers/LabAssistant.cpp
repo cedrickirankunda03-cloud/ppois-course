@@ -1,13 +1,13 @@
-﻿
+
 #include "teachers/LabAssistant.h"
 #include <iostream>
 
 using namespace std;
 
 LabAssistant::LabAssistant(
-    const string& id,
-    const string& teacher,
-    const string& room
+    const std::string& id,
+    const std::string& teacher,
+    const std::string& room
 )
     : assistantId(id),
       teacherId(teacher),
@@ -15,15 +15,15 @@ LabAssistant::LabAssistant(
 {
 }
 
-string LabAssistant::getAssistantId() const {
+const std::string& LabAssistant::getAssistantId() const {
     return assistantId;
 }
 
-string LabAssistant::getTeacherId() const {
+const std::string& LabAssistant::getTeacherId() const {
     return teacherId;
 }
 
-string LabAssistant::getAssignedRoom() const {
+const std::string& LabAssistant::getAssignedRoom() const {
     return assignedRoom;
 }
 

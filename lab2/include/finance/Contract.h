@@ -25,11 +25,11 @@ public:
         const std::string& contractDate
     );
 
-    std::string getContractId() const;
-    std::string getStudentId() const;
+    const std::string& getContractId() const;
+    const std::string& getStudentId() const;
     double getTotalAmount() const;
-    std::string getContractDate() const;
-    std::string getStatus() const;
+    const std::string& getContractDate() const;
+    const std::string& getStatus() const;
 
     void updateAmount(double amount);
     void signContract();

@@ -18,8 +18,8 @@ public:
     );
 
     // Getters
-    std::string getName() const;
-    std::string getDescription() const;
+    const std::string& getName() const;
+    const std::string& getDescription() const;
     int getCredits() const;
 
     // Setters

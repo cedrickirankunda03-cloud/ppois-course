@@ -7,7 +7,7 @@ Academic::Academic(const std::string& academicYear) {
     setAcademicYear(academicYear);
 }
 
-std::string Academic::getAcademicYear() const {
+const std::string& Academic::getAcademicYear() const {
     return academicYear;
 }
 

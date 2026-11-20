@@ -30,7 +30,7 @@ int Order::getOrderId() const {
     return orderId;
 }
 
-std::string Order::getStatus() const {
+const std::string& Order::getStatus() const {
     return status;
 }
 

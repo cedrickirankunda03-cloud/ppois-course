@@ -20,9 +20,9 @@ public:
         int capacity
     );
 
-    std::string getCafeteriaId() const;
-    std::string getCafeteriaName() const;
-    std::string getLocation() const;
+    const std::string& getCafeteriaId() const;
+    const std::string& getCafeteriaName() const;
+    const std::string& getLocation() const;
     int getSeatingCapacity() const;
 
     void updateSeatingCapacity(int capacity);

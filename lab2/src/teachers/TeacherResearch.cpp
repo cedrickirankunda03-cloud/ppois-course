@@ -6,10 +6,10 @@
 using namespace std;
 
 TeacherResearch::TeacherResearch(
-    const string& id,
-    const string& teacher,
-    const string& title,
-    const string& publication,
+    const std::string& id,
+    const std::string& teacher,
+    const std::string& title,
+    const std::string& publication,
     int year
 )
     : researchId(id),
@@ -20,19 +20,19 @@ TeacherResearch::TeacherResearch(
 {
 }
 
-string TeacherResearch::getResearchId() const {
+const std::string& TeacherResearch::getResearchId() const {
     return researchId;
 }
 
-string TeacherResearch::getTeacherId() const {
+const std::string& TeacherResearch::getTeacherId() const {
     return teacherId;
 }
 
-string TeacherResearch::getResearchTitle() const {
+const std::string& TeacherResearch::getResearchTitle() const {
     return researchTitle;
 }
 
-string TeacherResearch::getPublication() const {
+const std::string& TeacherResearch::getPublication() const {
     return publication;
 }
 
@@ -40,7 +40,7 @@ int TeacherResearch::getPublicationYear() const {
     return publicationYear;
 }
 
-void TeacherResearch::updatePublication(const string& newPublication) {
+void TeacherResearch::updatePublication(const std::string& newPublication) {
     publication = newPublication;
 }
 

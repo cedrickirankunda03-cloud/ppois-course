@@ -1,23 +1,23 @@
-﻿
+
 #include "teachers/Curator.h"
 #include <iostream>
 
 using namespace std;
 
 Curator::Curator(
-    const string& id,
-    const string& group
+    const std::string& id,
+    const std::string& group
 )
     : curatorId(id),
       groupId(group)
 {
 }
 
-string Curator::getCuratorId() const {
+const std::string& Curator::getCuratorId() const {
     return curatorId;
 }
 
-string Curator::getGroupId() const {
+const std::string& Curator::getGroupId() const {
     return groupId;
 }
 

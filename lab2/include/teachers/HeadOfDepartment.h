@@ -17,9 +17,9 @@ public:
         const std::string& teacher
     );
 
-    std::string getHeadId() const;
-    std::string getDepartmentId() const;
-    std::string getTeacherId() const;
+    const std::string& getHeadId() const;
+    const std::string& getDepartmentId() const;
+    const std::string& getTeacherId() const;
 
     void displayInformation() const;
 };

@@ -22,8 +22,7 @@ Finance::Finance(const std::string& financeId,
 }
 
 // Getters
-std::string Finance::getFinanceId() const
-{
+const std::string& Finance::getFinanceId() const {
     return financeId;
 }
 

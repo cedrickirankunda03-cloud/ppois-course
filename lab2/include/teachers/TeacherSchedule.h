@@ -13,13 +13,13 @@ private:
 public:
     explicit TeacherSchedule(const std::string& teacherId);
 
-    std::string getTeacherId() const;
+    const std::string& getTeacherId() const;
 
     void addLesson(const std::string& lesson);
     void removeLesson(const std::string& lesson);
 
     int getLessonCount() const;
-    std::vector<std::string> getLessons() const;
+    const std::vector<std::string>& getLessons() const;
 };
 
 #endif

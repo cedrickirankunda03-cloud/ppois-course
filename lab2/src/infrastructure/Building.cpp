@@ -24,12 +24,12 @@ InfrastructureBuilding::InfrastructureBuilding(
     }
 }
 
-std::string InfrastructureBuilding::getBuildingId() const
+const std::string& InfrastructureBuilding::getBuildingId() const
 {
     return buildingId;
 }
 
-std::string InfrastructureBuilding::getBuildingName() const
+const std::string& InfrastructureBuilding::getBuildingName() const
 {
     return buildingName;
 }
@@ -47,8 +47,7 @@ void InfrastructureBuilding::updateBuildingName(
     buildingName = name;
 }
 
-std::string InfrastructureBuilding::getAddressId() const
-{
+const std::string& InfrastructureBuilding::getAddressId() const {
     return addressId;
 }
 

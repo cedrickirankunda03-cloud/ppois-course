@@ -19,10 +19,10 @@ public:
         const std::string& endDate
     );
 
-    std::string getId() const;
-    std::string getName() const;
-    std::string getStartDate() const;
-    std::string getEndDate() const;
+    const std::string& getId() const;
+    const std::string& getName() const;
+    const std::string& getStartDate() const;
+    const std::string& getEndDate() const;
     bool isActive() const;
 
     void setName(const std::string& name);

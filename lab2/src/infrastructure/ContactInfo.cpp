@@ -20,18 +20,17 @@ ContactInfo::ContactInfo(
     }
 }
 
-std::string ContactInfo::getContactId() const
+const std::string& ContactInfo::getContactId() const
 {
     return contactId;
 }
 
-std::string ContactInfo::getPhoneNumber() const
+const std::string& ContactInfo::getPhoneNumber() const
 {
     return phoneNumber;
 }
 
-std::string ContactInfo::getEmail() const
-{
+const std::string& ContactInfo::getEmail() const {
     return email;
 }
 

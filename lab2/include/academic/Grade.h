@@ -19,10 +19,10 @@ public:
         double score
     );
 
-    std::string getStudentId() const;
-    std::string getSubjectCode() const;
+    const std::string& getStudentId() const;
+    const std::string& getSubjectCode() const;
     double getScore() const;
-    std::string getLetterGrade() const;
+    const std::string& getLetterGrade() const;
 
     void setScore(double score);
     bool isPassing() const;

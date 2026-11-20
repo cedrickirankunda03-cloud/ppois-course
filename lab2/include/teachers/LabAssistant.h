@@ -17,9 +17,9 @@ public:
         const std::string& room
     );
 
-    std::string getAssistantId() const;
-    std::string getTeacherId() const;
-    std::string getAssignedRoom() const;
+    const std::string& getAssistantId() const;
+    const std::string& getTeacherId() const;
+    const std::string& getAssignedRoom() const;
 
     void displayInformation() const;
 };

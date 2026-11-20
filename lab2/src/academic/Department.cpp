@@ -15,15 +15,15 @@ Department::Department(
     }
 }
 
-std::string Department::getId() const {
+const std::string& Department::getId() const {
     return id;
 }
 
-std::string Department::getName() const {
+const std::string& Department::getName() const {
     return name;
 }
 
-std::string Department::getDescription() const {
+const std::string& Department::getDescription() const {
     return description;
 }
 

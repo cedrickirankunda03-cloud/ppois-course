@@ -13,8 +13,8 @@ private:
 public:
     Faculty(const std::string& id, const std::string& name);
 
-    std::string getId() const;
-    std::string getName() const;
+    const std::string& getId() const;
+    const std::string& getName() const;
 
     void setName(const std::string& name);
 

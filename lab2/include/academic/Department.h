@@ -24,9 +24,9 @@ public:
         const std::string& description
     );
 
-    std::string getId() const;
-    std::string getName() const;
-    std::string getDescription() const;
+    const std::string& getId() const;
+    const std::string& getName() const;
+    const std::string& getDescription() const;
 
     void setName(const std::string& name);
     void setDescription(const std::string& description);

@@ -23,8 +23,8 @@ public:
         const std::string& supervisor
     );
 
-    std::string getResearchArea() const;
-    std::string getThesisTitle() const;
+    const std::string& getResearchArea() const;
+    const std::string& getThesisTitle() const;
     int getResearchProgress() const;
 
     void updateResearchProgress(int progress);

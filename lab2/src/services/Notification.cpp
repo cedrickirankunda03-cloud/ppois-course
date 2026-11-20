@@ -19,8 +19,7 @@ Notification::Notification(
     }
 }
 
-std::string Notification::getMessage() const
-{
+const std::string& Notification::getMessage() const {
     return message;
 }
 

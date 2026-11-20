@@ -30,7 +30,7 @@ int Application::getApplicationId() const {
     return applicationId;
 }
 
-std::string Application::getStatus() const {
+const std::string& Application::getStatus() const {
     return status;
 }
 

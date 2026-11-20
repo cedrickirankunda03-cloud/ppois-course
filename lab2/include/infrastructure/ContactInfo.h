@@ -14,9 +14,9 @@ public:
                 const std::string& phoneNumber,
                 const std::string& email);
 
-    std::string getContactId() const;
-    std::string getPhoneNumber() const;
-    std::string getEmail() const;
+    const std::string& getContactId() const;
+    const std::string& getPhoneNumber() const;
+    const std::string& getEmail() const;
 
     void updatePhoneNumber(const std::string& phoneNumber);
     void updateEmail(const std::string& email);

@@ -17,7 +17,7 @@ Building::Building(
     }
 }
 
-std::string Building::getName() const {
+const std::string& Building::getName() const {
     return name;
 }
 

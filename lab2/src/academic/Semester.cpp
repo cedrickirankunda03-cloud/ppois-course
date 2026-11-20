@@ -1,4 +1,4 @@
-﻿#include "academic/Semester.h"
+#include "academic/Semester.h"
 #include <stdexcept>
 
 Semester::Semester(
@@ -26,19 +26,19 @@ Semester::Semester(
     }
 }
 
-std::string Semester::getId() const {
+const std::string& Semester::getId() const {
     return id;
 }
 
-std::string Semester::getName() const {
+const std::string& Semester::getName() const {
     return name;
 }
 
-std::string Semester::getStartDate() const {
+const std::string& Semester::getStartDate() const {
     return startDate;
 }
 
-std::string Semester::getEndDate() const {
+const std::string& Semester::getEndDate() const {
     return endDate;
 }
 
