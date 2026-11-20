@@ -29,8 +29,8 @@ public:
         int publications
     );
 
-    std::string getAcademicRank() const;
-    std::string getResearchField() const;
+    const std::string& getAcademicRank() const;
+    const std::string& getResearchField() const;
     int getPublications() const;
 
     void addPublication();

@@ -19,8 +19,8 @@ public:
         const std::string& group
     );
 
-    std::string getCuratorId() const;
-    std::string getGroupId() const;
+    const std::string& getCuratorId() const;
+    const std::string& getGroupId() const;
 
     void displayInformation() const;
 };

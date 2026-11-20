@@ -17,7 +17,7 @@ public:
     StudentGroup(int groupId, const std::string& groupName);
 
     int getGroupId() const;
-    std::string getGroupName() const;
+    const std::string& getGroupName() const;
 
     void addStudent(Student* student);
     void removeStudent(Student* student);

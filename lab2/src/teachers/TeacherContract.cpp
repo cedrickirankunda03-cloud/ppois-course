@@ -26,23 +26,23 @@ TeacherContract::TeacherContract(
     }
 }
 
-std::string TeacherContract::getContractId() const {
+const std::string& TeacherContract::getContractId() const {
     return contractId;
 }
 
-std::string TeacherContract::getTeacherId() const {
+const std::string& TeacherContract::getTeacherId() const {
     return teacherId;
 }
 
-std::string TeacherContract::getContractType() const {
+const std::string& TeacherContract::getContractType() const {
     return contractType;
 }
 
-std::string TeacherContract::getStartDate() const {
+const std::string& TeacherContract::getStartDate() const {
     return startDate;
 }
 
-std::string TeacherContract::getEndDate() const {
+const std::string& TeacherContract::getEndDate() const {
     return endDate;
 }
 

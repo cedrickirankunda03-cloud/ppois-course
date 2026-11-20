@@ -25,18 +25,17 @@ Cafeteria::Cafeteria(
     }
 }
 
-std::string Cafeteria::getCafeteriaId() const
+const std::string& Cafeteria::getCafeteriaId() const
 {
     return cafeteriaId;
 }
 
-std::string Cafeteria::getCafeteriaName() const
+const std::string& Cafeteria::getCafeteriaName() const
 {
     return cafeteriaName;
 }
 
-std::string Cafeteria::getLocation() const
-{
+const std::string& Cafeteria::getLocation() const {
     return location;
 }
 

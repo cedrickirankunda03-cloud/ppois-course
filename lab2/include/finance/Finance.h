@@ -16,7 +16,7 @@ public:
             double annualBudget);
 
     // Getters
-    std::string getFinanceId() const;
+    const std::string& getFinanceId() const;
     double getAnnualBudget() const;
     double getTotalPayments() const;
     double getTotalScholarships() const;

@@ -19,7 +19,7 @@ public:
         double maximumScholarship
     );
 
-    std::string getManagerId() const;
+    const std::string& getManagerId() const;
     double getMaximumScholarship() const;
 
     void addScholarship(const Scholarship& scholarship);

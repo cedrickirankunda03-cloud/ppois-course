@@ -1,13 +1,13 @@
-﻿
+
 #include "teachers/HeadOfDepartment.h"
 #include <iostream>
 
 using namespace std;
 
 HeadOfDepartment::HeadOfDepartment(
-    const string& id,
-    const string& department,
-    const string& teacher
+    const std::string& id,
+    const std::string& department,
+    const std::string& teacher
 )
     : headId(id),
       departmentId(department),
@@ -15,15 +15,15 @@ HeadOfDepartment::HeadOfDepartment(
 {
 }
 
-string HeadOfDepartment::getHeadId() const {
+const std::string& HeadOfDepartment::getHeadId() const {
     return headId;
 }
 
-string HeadOfDepartment::getDepartmentId() const {
+const std::string& HeadOfDepartment::getDepartmentId() const {
     return departmentId;
 }
 
-string HeadOfDepartment::getTeacherId() const {
+const std::string& HeadOfDepartment::getTeacherId() const {
     return teacherId;
 }
 

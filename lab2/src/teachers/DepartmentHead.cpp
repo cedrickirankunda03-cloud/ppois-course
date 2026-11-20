@@ -1,4 +1,4 @@
-﻿
+
 #include "teachers/DepartmentHead.h"
 #include <iostream>
 
@@ -6,15 +6,15 @@ using namespace std;
 
 // Constructor
 DepartmentHead::DepartmentHead(
-    const string& id,
-    const string& first,
-    const string& last,
-    const string& department,
-    const string& specialization,
+    const std::string& id,
+    const std::string& first,
+    const std::string& last,
+    const std::string& department,
+    const std::string& specialization,
     double salary,
     int years,
     int teachers,
-    const string& office
+    const std::string& office
 )
     : Teacher(id, first, last, department, specialization, salary),
       yearsAsHead(years),
@@ -32,12 +32,12 @@ int DepartmentHead::getTeachersSupervised() const {
     return teachersSupervised;
 }
 
-string DepartmentHead::getOfficeNumber() const {
+const std::string& DepartmentHead::getOfficeNumber() const {
     return officeNumber;
 }
 
 // Update office number
-void DepartmentHead::updateOfficeNumber(const string& office) {
+void DepartmentHead::updateOfficeNumber(const std::string& office) {
     officeNumber = office;
 }
 

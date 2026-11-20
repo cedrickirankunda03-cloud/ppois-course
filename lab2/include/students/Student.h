@@ -28,9 +28,9 @@ public:
     virtual ~Student() = default;
 
     // Getters
-    std::string getStudentId() const;
-    std::string getFirstName() const;
-    std::string getLastName() const;
+    const std::string& getStudentId() const;
+    const std::string& getFirstName() const;
+    const std::string& getLastName() const;
     int getYearOfStudy() const;
 
     // Student behaviours

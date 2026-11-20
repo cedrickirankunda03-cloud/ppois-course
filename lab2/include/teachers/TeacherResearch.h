@@ -21,10 +21,10 @@ public:
         int year
     );
 
-    std::string getResearchId() const;
-    std::string getTeacherId() const;
-    std::string getResearchTitle() const;
-    std::string getPublication() const;
+    const std::string& getResearchId() const;
+    const std::string& getTeacherId() const;
+    const std::string& getResearchTitle() const;
+    const std::string& getPublication() const;
     int getPublicationYear() const;
 
     void updatePublication(const std::string& newPublication);

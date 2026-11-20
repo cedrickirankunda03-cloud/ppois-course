@@ -24,15 +24,15 @@ Course::Course(
     }
 }
 
-std::string Course::getCode() const {
+const std::string& Course::getCode() const {
     return code;
 }
 
-std::string Course::getName() const {
+const std::string& Course::getName() const {
     return name;
 }
 
-std::string Course::getDescription() const {
+const std::string& Course::getDescription() const {
     return description;
 }
 

@@ -22,11 +22,11 @@ public:
     );
 
     // Getters
-    std::string getSubject() const;
-    std::string getDay() const;
-    std::string getStartTime() const;
-    std::string getEndTime() const;
-    std::string getRoom() const;
+    const std::string& getSubject() const;
+    const std::string& getDay() const;
+    const std::string& getStartTime() const;
+    const std::string& getEndTime() const;
+    const std::string& getRoom() const;
 
     // Setters
     void setSubject(const std::string& subject);

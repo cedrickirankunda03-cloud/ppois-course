@@ -40,7 +40,6 @@ double Scholarship::getAmount() const
     return amount;
 }
 
-std::string Scholarship::getScholarshipId() const
-{
+const std::string& Scholarship::getScholarshipId() const {
     return scholarshipId;
 }

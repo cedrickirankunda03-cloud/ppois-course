@@ -27,7 +27,7 @@ public:
     int getApplicationId() const;
 
     // Get application status
-    std::string getStatus() const;
+    const std::string& getStatus() const;
 
     // Update application status
     void setStatus(const std::string& status);

@@ -23,8 +23,8 @@ public:
     int getEnrollmentId() const;
     int getStudentId() const;
     int getCourseId() const;
-    std::string getEnrollmentDate() const;
-    std::string getStatus() const;
+    const std::string& getEnrollmentDate() const;
+    const std::string& getStatus() const;
 
     void setStatus(const std::string& status);
 

@@ -24,7 +24,7 @@ public:
         int credits
     );
 
-    std::string getSpecialization() const;
+    const std::string& getSpecialization() const;
     int getCreditsCompleted() const;
 
     void completeCredits(int credits);

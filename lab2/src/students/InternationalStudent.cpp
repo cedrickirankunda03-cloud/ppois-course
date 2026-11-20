@@ -1,4 +1,4 @@
-﻿#include "students/InternationalStudent.h"
+#include "students/InternationalStudent.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -37,15 +37,15 @@ InternationalStudent::InternationalStudent(
     }
 }
 
-std::string InternationalStudent::getHomeCountry() const {
+const std::string& InternationalStudent::getHomeCountry() const {
     return homeCountry;
 }
 
-std::string InternationalStudent::getPassportNumber() const {
+const std::string& InternationalStudent::getPassportNumber() const {
     return passportNumber;
 }
 
-std::string InternationalStudent::getVisaExpiryDate() const {
+const std::string& InternationalStudent::getVisaExpiryDate() const {
     return visaExpiryDate;
 }
 

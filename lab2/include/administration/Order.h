@@ -27,7 +27,7 @@ public:
     int getOrderId() const;
 
     // Get status
-    std::string getStatus() const;
+    const std::string& getStatus() const;
 
     // Update status
     void setStatus(const std::string& status);

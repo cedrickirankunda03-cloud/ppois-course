@@ -16,7 +16,7 @@ public:
         const std::string& message
     );
 
-    std::string getMessage() const;
+    const std::string& getMessage() const;
     void updateMessage(const std::string& newMessage);
 };
 

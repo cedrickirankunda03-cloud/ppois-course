@@ -32,6 +32,6 @@ const std::vector<Grade>& Transcript::getGrades() const {
     return grades;
 }
 
-std::string Transcript::getAcademicYear() const {
+const std::string& Transcript::getAcademicYear() const {
     return academicYear;
 }

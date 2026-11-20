@@ -20,10 +20,10 @@ public:
         const std::string& address
     );
 
-    std::string getStudentId() const;
-    std::string getEmail() const;
-    std::string getPhoneNumber() const;
-    std::string getAddress() const;
+    const std::string& getStudentId() const;
+    const std::string& getEmail() const;
+    const std::string& getPhoneNumber() const;
+    const std::string& getAddress() const;
 
     void setEmail(const std::string& email);
     void setPhoneNumber(const std::string& phoneNumber);

@@ -30,7 +30,7 @@ public:
 
     int getYearsAsHead() const;
     int getTeachersSupervised() const;
-    std::string getOfficeNumber() const;
+    const std::string& getOfficeNumber() const;
 
     void updateOfficeNumber(const std::string& office);
     void displayDepartmentHeadInformation() const;

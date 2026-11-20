@@ -14,7 +14,7 @@ public:
     explicit Academic(const std::string& academicYear);
 
     // Get academic year
-    std::string getAcademicYear() const;
+    const std::string& getAcademicYear() const;
 
     // Change academic year
     void setAcademicYear(const std::string& academicYear);

@@ -18,7 +18,7 @@ public:
              const std::string& name,
              const std::string& address);
 
-    std::string getName() const;
+    const std::string& getName() const;
     void addRoom(Room* room);
     int getRoomCount() const;
 };

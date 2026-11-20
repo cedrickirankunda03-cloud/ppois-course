@@ -27,8 +27,7 @@ Address::Address(
     }
 }
 
-std::string Address::getAddressId() const
-{
+const std::string& Address::getAddressId() const {
     return addressId;
 }
 

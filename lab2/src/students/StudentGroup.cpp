@@ -23,7 +23,7 @@ int StudentGroup::getGroupId() const {
     return groupId;
 }
 
-std::string StudentGroup::getGroupName() const {
+const std::string& StudentGroup::getGroupName() const {
     return groupName;
 }
 

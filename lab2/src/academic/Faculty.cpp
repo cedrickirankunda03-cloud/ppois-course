@@ -12,11 +12,11 @@ Faculty::Faculty(const std::string& id, const std::string& name)
     }
 }
 
-std::string Faculty::getId() const {
+const std::string& Faculty::getId() const {
     return id;
 }
 
-std::string Faculty::getName() const {
+const std::string& Faculty::getName() const {
     return name;
 }
 

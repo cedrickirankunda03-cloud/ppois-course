@@ -17,9 +17,9 @@ public:
                    const std::string& infrastructureName,
                    const std::string& location);
 
-    std::string getInfrastructureId() const;
-    std::string getInfrastructureName() const;
-    std::string getLocation() const;
+    const std::string& getInfrastructureId() const;
+    const std::string& getInfrastructureName() const;
+    const std::string& getLocation() const;
     int getTotalBuildings() const;
     int getTotalRooms() const;
 

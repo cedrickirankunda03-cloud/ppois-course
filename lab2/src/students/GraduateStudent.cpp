@@ -1,4 +1,4 @@
-﻿#include "students/GraduateStudent.h"
+#include "students/GraduateStudent.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -27,11 +27,11 @@ GraduateStudent::GraduateStudent(
     }
 }
 
-std::string GraduateStudent::getResearchArea() const {
+const std::string& GraduateStudent::getResearchArea() const {
     return researchArea;
 }
 
-std::string GraduateStudent::getThesisTitle() const {
+const std::string& GraduateStudent::getThesisTitle() const {
     return thesisTitle;
 }
 

@@ -1,4 +1,4 @@
-﻿#include "students/Student.h"
+#include "students/Student.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -20,15 +20,15 @@ Student::Student(const std::string& id,
     }
 }
 
-std::string Student::getStudentId() const {
+const std::string& Student::getStudentId() const {
     return studentId;
 }
 
-std::string Student::getFirstName() const {
+const std::string& Student::getFirstName() const {
     return firstName;
 }
 
-std::string Student::getLastName() const {
+const std::string& Student::getLastName() const {
     return lastName;
 }
 

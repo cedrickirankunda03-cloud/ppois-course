@@ -23,13 +23,12 @@ Dormitory::Dormitory(
     }
 }
 
-std::string Dormitory::getDormitoryId() const
+const std::string& Dormitory::getDormitoryId() const
 {
     return dormitoryId;
 }
 
-std::string Dormitory::getDormitoryName() const
-{
+const std::string& Dormitory::getDormitoryName() const {
     return dormitoryName;
 }
 

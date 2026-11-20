@@ -28,9 +28,9 @@ public:
         double salary
     );
 
-    std::string getTeacherId() const;
+    const std::string& getTeacherId() const;
     std::string getFullName() const;
-    std::string getDepartment() const;
+    const std::string& getDepartment() const;
     double getSalary() const;
 
     void updateDepartment(const std::string& newDepartment);

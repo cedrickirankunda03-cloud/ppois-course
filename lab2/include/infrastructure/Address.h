@@ -20,7 +20,7 @@ public:
         const std::string& country
     );
 
-    std::string getAddressId() const;
+    const std::string& getAddressId() const;
     std::string getFullAddress() const;
 
     bool operator==(const Address& other) const;

@@ -35,11 +35,11 @@ int Enrollment::getCourseId() const {
     return courseId;
 }
 
-std::string Enrollment::getEnrollmentDate() const {
+const std::string& Enrollment::getEnrollmentDate() const {
     return enrollmentDate;
 }
 
-std::string Enrollment::getStatus() const {
+const std::string& Enrollment::getStatus() const {
     return status;
 }
 

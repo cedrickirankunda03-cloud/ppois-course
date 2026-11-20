@@ -21,10 +21,10 @@ public:
         const std::string& comments
     );
 
-    std::string getEvaluationId() const;
-    std::string getTeacherId() const;
+    const std::string& getEvaluationId() const;
+    const std::string& getTeacherId() const;
     double getTeachingScore() const;
-    std::string getComments() const;
+    const std::string& getComments() const;
 
     void updateScore(double score);
     void updateComments(const std::string& newComments);
