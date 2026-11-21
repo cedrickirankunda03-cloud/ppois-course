@@ -23,17 +23,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup MSYS2 MinGW64
+      - name: Setup MSYS2 UCRT64
         uses: msys2/setup-msys2@v2
         with:
-          msystem: MINGW64
+          msystem: UCRT64
           update: true
           install: >-
-            mingw-w64-x86_64-gcc
-            mingw-w64-x86_64-cmake
-            mingw-w64-x86_64-ninja
-            mingw-w64-x86_64-cppcheck
-            mingw-w64-x86_64-gcovr
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-cppcheck
+            mingw-w64-ucrt-x86_64-gcovr
 
       - name: Configure
         run: cmake -B build -G Ninja -DBUILD_TESTING=ON -DENABLE_COVERAGE=ON
@@ -72,17 +72,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup MSYS2 MinGW64
+      - name: Setup MSYS2 UCRT64
         uses: msys2/setup-msys2@v2
         with:
-          msystem: MINGW64
+          msystem: UCRT64
           update: true
           install: >-
-            mingw-w64-x86_64-gcc
-            mingw-w64-x86_64-cmake
-            mingw-w64-x86_64-ninja
-            mingw-w64-x86_64-cppcheck
-            mingw-w64-x86_64-gcovr
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-cppcheck
+            mingw-w64-ucrt-x86_64-gcovr
 
       - name: Configure
         run: cmake -B build -G Ninja -DBUILD_TESTS=ON -DENABLE_COVERAGE=ON
@@ -118,15 +118,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup MSYS2 MinGW64
+      - name: Setup MSYS2 UCRT64
         uses: msys2/setup-msys2@v2
         with:
-          msystem: MINGW64
+          msystem: UCRT64
           update: true
           install: >-
-            mingw-w64-x86_64-gcc
-            mingw-w64-x86_64-cmake
-            mingw-w64-x86_64-ninja
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
 
       - name: Build Windows Release
         shell: msys2 {0}
@@ -140,6 +140,7 @@ jobs:
         working-directory: .
         run: |
           New-Item -ItemType Directory -Force -Path release\lab2 | Out-Null
+
           Copy-Item lab2\build\dean_office_app.exe release\lab2\
 
           @"
