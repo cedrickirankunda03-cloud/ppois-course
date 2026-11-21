@@ -3,6 +3,7 @@
 namespace wms {
 class NotificationService {
 public:
-    void sendAlert(const std::string& msg) {}
+    void sendAlert(const std::string&) {}
 };
 }
+
