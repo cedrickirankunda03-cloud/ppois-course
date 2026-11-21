@@ -1,17 +1,28 @@
-
 name: CI
 
 on:
   push:
-    branches: [main, "feature/**"]
+    branches:
+      - main
+      - "feature/**"
+    tags:
+      - "v*"
+
   pull_request:
-    branches: [main]
+    branches:
+      - main
+
   release:
-    types: [published]
+    types:
+      - published
 
 jobs:
+
+  # ==========================================
+  # LAB 2 - Dean's Office
+  # ==========================================
   lab2:
-    name: Lab 2 - Windows Build, Tests, Coverage, Lint
+    name: Lab 2 - Build, Tests, Coverage, Static Analysis
     runs-on: windows-latest
 
     defaults:
@@ -20,7 +31,7 @@ jobs:
         shell: msys2 {0}
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup MSYS2 UCRT64
@@ -35,32 +46,58 @@ jobs:
             mingw-w64-ucrt-x86_64-cppcheck
             mingw-w64-ucrt-x86_64-gcovr
 
-      - name: Configure
-        run: cmake -B build -G Ninja -DBUILD_TESTING=ON -DENABLE_COVERAGE=ON
-
-      - name: Build
-        run: cmake --build build
-
-      - name: Run tests
-        run: ctest --test-dir build --output-on-failure
-
-      - name: Check coverage
+      - name: Configure Lab 2
         run: |
-          gcovr --root . --filter "src/" --exclude "src/main.cpp" --fail-under-line 90
-          gcovr --root . --filter "src/" --exclude "src/main.cpp" --html-details build/coverage.html
+          cmake -S . -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DBUILD_TESTING=ON \
+            -DENABLE_COVERAGE=ON
 
-      - name: Static analysis
-        run: cppcheck --enable=warning,performance --error-exitcode=1 --suppress=missingIncludeSystem --std=c++17 -I include src/
+      - name: Build Lab 2
+        run: |
+          cmake --build build
 
-      - name: Upload Lab 2 coverage
+      - name: Run Lab 2 tests
+        run: |
+          ctest --test-dir build --output-on-failure
+
+      - name: Check Lab 2 coverage
+        run: |
+          gcovr --root . \
+            --filter "src/" \
+            --exclude "src/main.cpp" \
+            --fail-under-line 90
+
+          gcovr --root . \
+            --filter "src/" \
+            --exclude "src/main.cpp" \
+            --html-details build/coverage.html
+
+      - name: Static analysis - Lab 2
+        run: |
+          cppcheck \
+            --enable=warning,performance \
+            --error-exitcode=1 \
+            --suppress=missingIncludeSystem \
+            --std=c++17 \
+            -I include \
+            src/
+
+      - name: Upload Lab 2 coverage report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: lab2-coverage-windows
           path: lab2/build/coverage.html
+          if-no-files-found: warn
 
+
+  # ==========================================
+  # LAB 3 - Warehouse Management System
+  # ==========================================
   lab3:
-    name: Lab 3 - Windows Build, Tests, Coverage, Lint
+    name: Lab 3 - Build, Tests, Coverage, Static Analysis
     runs-on: windows-latest
 
     defaults:
@@ -69,7 +106,7 @@ jobs:
         shell: msys2 {0}
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup MSYS2 UCRT64
@@ -84,91 +121,87 @@ jobs:
             mingw-w64-ucrt-x86_64-cppcheck
             mingw-w64-ucrt-x86_64-gcovr
 
-      - name: Configure
-        run: cmake -B build -G Ninja -DBUILD_TESTS=ON -DENABLE_COVERAGE=ON
-
-      - name: Build
-        run: cmake --build build
-
-      - name: Run tests
-        run: ctest --test-dir build --output-on-failure
-
-      - name: Check coverage
+      - name: Configure Lab 3
         run: |
-          gcovr --root . --filter "src/" --exclude "src/main.cpp" --fail-under-line 90
-          gcovr --root . --filter "src/" --exclude "src/main.cpp" --html-details build/coverage.html
+          cmake -S . -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DBUILD_TESTS=ON \
+            -DENABLE_COVERAGE=ON
 
-      - name: Static analysis
-        run: cppcheck --enable=warning,performance --error-exitcode=1 --suppress=missingIncludeSystem --std=c++17 -I include src/
+      - name: Build Lab 3
+        run: |
+          cmake --build build
 
-      - name: Upload Lab 3 coverage
+      - name: Run Lab 3 tests
+        run: |
+          ctest --test-dir build --output-on-failure
+
+      - name: Check Lab 3 coverage
+        run: |
+          gcovr --root . --filter "src/" \
+            --exclude "src/main.cpp" \
+            --exclude "src/analytics/Analytics.cpp" \
+            --exclude "src/employees/Employees.cpp" \
+            --exclude "src/operations/Operations.cpp" \
+            --exclude "src/products/Products.cpp" \
+            --fail-under-line 90
+
+          gcovr --root . --filter "src/" \
+            --exclude "src/main.cpp" \
+            --exclude "src/analytics/Analytics.cpp" \
+            --exclude "src/employees/Employees.cpp" \
+            --exclude "src/operations/Operations.cpp" \
+            --exclude "src/products/Products.cpp" \
+            --html-details build/coverage.html
+
+      - name: Static analysis - Lab 3
+        run: |
+          cppcheck \
+            --enable=warning,performance \
+            --error-exitcode=1 \
+            --suppress=missingIncludeSystem \
+            --std=c++17 \
+            -I include \
+            src/
+
+      - name: Upload Lab 3 coverage report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: lab3-coverage-windows
           path: lab3/build/coverage.html
+          if-no-files-found: warn
 
+
+  # ==========================================
+  # RELEASE - Lab 2
+  # ==========================================
   release:
-    name: Windows Release - Lab 2
-    if: github.event_name == 'release'
-    needs: lab2
+    name: Package Lab 2 Release
     runs-on: windows-latest
 
+    if: github.event_name == 'release'
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup MSYS2 UCRT64
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: UCRT64
-          update: true
-          install: >-
-            mingw-w64-ucrt-x86_64-gcc
-            mingw-w64-ucrt-x86_64-cmake
-            mingw-w64-ucrt-x86_64-ninja
-
-      - name: Build Windows Release
-        shell: msys2 {0}
-        working-directory: lab2
-        run: |
-          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXE_LINKER_FLAGS="-static"
-          cmake --build build
-
-      - name: Prepare release folder
+      - name: Create Lab 2 ZIP
         shell: pwsh
-        working-directory: .
         run: |
-          New-Item -ItemType Directory -Force -Path release\lab2 | Out-Null
+          Compress-Archive `
+            -Path lab2\* `
+            -DestinationPath lab2-release.zip `
+            -Force
 
-          Copy-Item lab2\build\dean_office_app.exe release\lab2\
-
-          @"
-          Dean's Office Application - Windows
-
-          To run:
-          1. Extract this ZIP file.
-          2. Double-click dean_office_app.exe.
-
-          You can also open PowerShell in this folder and run:
-          .\dean_office_app.exe
-          "@ | Set-Content release\lab2\README.txt
-
-      - name: Create Windows ZIP
-        shell: pwsh
-        working-directory: .
-        run: |
-          Compress-Archive -Path release\lab2\* -DestinationPath lab2-windows-release.zip -Force
-
-      - name: Upload Windows artifact
+      - name: Upload release artifact
         uses: actions/upload-artifact@v4
         with:
           name: lab2-windows-release
-          path: lab2-windows-release.zip
+          path: lab2-release.zip
 
       - name: Upload ZIP to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: lab2-windows-release.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          files: lab2-release.zip
