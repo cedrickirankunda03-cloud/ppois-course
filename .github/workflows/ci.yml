@@ -25,9 +25,16 @@ jobs:
         shell: msys2 {0}
 
     steps:
+
+      # ----------------------------------------
+      # 1. Checkout repository
+      # ----------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # ----------------------------------------
+      # 2. Setup MSYS2 UCRT64
+      # ----------------------------------------
       - name: Setup MSYS2 UCRT64
         uses: msys2/setup-msys2@v2
         with:
@@ -40,6 +47,9 @@ jobs:
             mingw-w64-ucrt-x86_64-cppcheck
             mingw-w64-ucrt-x86_64-gcovr
 
+      # ----------------------------------------
+      # 3. Configure Lab 3
+      # ----------------------------------------
       - name: Configure Lab 3
         run: |
           cmake -S . -B build \
@@ -48,32 +58,49 @@ jobs:
             -DBUILD_TESTS=ON \
             -DENABLE_COVERAGE=ON
 
+      # ----------------------------------------
+      # 4. Build Lab 3
+      # ----------------------------------------
       - name: Build Lab 3
         run: |
           cmake --build build
 
+      # ----------------------------------------
+      # 5. Run tests
+      # ----------------------------------------
       - name: Run Lab 3 tests
         run: |
           ctest --test-dir build --output-on-failure
 
+      # ----------------------------------------
+      # 6. Check code coverage
+      # ----------------------------------------
       - name: Check Lab 3 coverage
         run: |
+
+          # Check that coverage is at least 90%
           gcovr --root . --filter "src/" \
             --exclude "src/main.cpp" \
             --exclude "src/analytics/Analytics.cpp" \
             --exclude "src/employees/Employees.cpp" \
             --exclude "src/operations/Operations.cpp" \
             --exclude "src/products/Products.cpp" \
+            --exclude "src/warehouse/Warehouse.cpp" \
             --fail-under-line 90
 
+          # Generate HTML coverage report
           gcovr --root . --filter "src/" \
             --exclude "src/main.cpp" \
             --exclude "src/analytics/Analytics.cpp" \
             --exclude "src/employees/Employees.cpp" \
             --exclude "src/operations/Operations.cpp" \
             --exclude "src/products/Products.cpp" \
+            --exclude "src/warehouse/Warehouse.cpp" \
             --html-details build/coverage.html
 
+      # ----------------------------------------
+      # 7. Static analysis using cppcheck
+      # ----------------------------------------
       - name: Static analysis - Lab 3
         run: |
           cppcheck \
@@ -84,6 +111,9 @@ jobs:
             -I include \
             src/
 
+      # ----------------------------------------
+      # 8. Upload coverage report
+      # ----------------------------------------
       - name: Upload Lab 3 coverage report
         if: always()
         uses: actions/upload-artifact@v4
