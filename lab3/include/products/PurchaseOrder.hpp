@@ -7,7 +7,7 @@ class PurchaseOrder {
     Supplier supplier_;
     std::vector<PurchaseOrderLine> lines_;
 public:
-    explicit PurchaseOrder(Supplier supplier) : supplier_(supplier) {}
+explicit PurchaseOrder(const Supplier& supplier)
     void addLine(const PurchaseOrderLine& line) { lines_.push_back(line); }
     core::Money total() const {
         core::Money sum(0);

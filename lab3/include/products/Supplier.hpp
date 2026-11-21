@@ -8,7 +8,7 @@ class Supplier {
     core::Address address_;
     core::Contact contact_;
 public:
-    Supplier(std::string name, core::Address address, core::Contact contact)
+    Supplier(std::string name, core::Address address, const core::Contact& contact)
         : name_(std::move(name)), address_(address), contact_(contact) {}
     const std::string& name() const noexcept { return name_; }
 };
