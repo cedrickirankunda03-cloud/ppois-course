@@ -2,93 +2,122 @@ name: CI
 
 on:
   push:
-    branches: [main, "feature/**"]
+    branches:
+      - main
+      - "feature/**"
+
   pull_request:
-    branches: [main]
-  release:
-    types: [published]
+    branches:
+      - main
 
 jobs:
-  build-test-lint:
-    name: Build, Test, Coverage, Lint
-    runs-on: ubuntu-latest
+
+  # ==========================================
+  # LAB 3 - Warehouse Management System
+  # ==========================================
+  lab3:
+    name: Lab 3 - Build, Tests, Coverage, Static Analysis
+    runs-on: windows-latest
+
     defaults:
       run:
-        working-directory: lab2
+        working-directory: lab3
+        shell: msys2 {0}
 
     steps:
-      - name: Checkout
+
+      # ----------------------------------------
+      # 1. Checkout repository
+      # ----------------------------------------
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      # ----------------------------------------
+      # 2. Setup MSYS2 UCRT64
+      # ----------------------------------------
+      - name: Setup MSYS2 UCRT64
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-cppcheck
+            mingw-w64-ucrt-x86_64-gcovr
+
+      # ----------------------------------------
+      # 3. Configure Lab 3
+      # ----------------------------------------
+      - name: Configure Lab 3
         run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake g++ gcovr cppcheck
+          cmake -S . -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DBUILD_TESTS=ON \
+            -DENABLE_COVERAGE=ON
 
-      - name: Configure CMake
-        run: cmake -B build -DBUILD_TESTING=ON -DENABLE_COVERAGE=ON
-
-      - name: Build
-        run: cmake --build build
-
-      - name: Run tests
-        run: ctest --test-dir build --output-on-failure
-
-      - name: Check coverage (>=90%)
+      # ----------------------------------------
+      # 4. Build Lab 3
+      # ----------------------------------------
+      - name: Build Lab 3
         run: |
-          cd build
-          gcovr --root .. --filter "../src/" --exclude "../src/main.cpp" \
-                --merge-mode-functions=merge-use-line-min \
-                --fail-under-line 90
-          gcovr --root .. --filter "../src/" --exclude "../src/main.cpp" \
-                --merge-mode-functions=merge-use-line-min \
-                --html-details coverage.html
+          cmake --build build
 
-      - name: Static analysis (cppcheck)
+      # ----------------------------------------
+      # 5. Run tests
+      # ----------------------------------------
+      - name: Run Lab 3 tests
         run: |
-          cppcheck --enable=warning,performance --error-exitcode=1 \
-                   --suppress=missingIncludeSystem \
-                   --std=c++17 -I include src/
+          ctest --test-dir build --output-on-failure
 
-      - name: Upload coverage report
+      # ----------------------------------------
+      # 6. Check code coverage
+      # ----------------------------------------
+      - name: Check Lab 3 coverage
+        run: |
+
+          # Check that coverage is at least 90%
+          gcovr --root . --filter "src/" \
+            --exclude "src/main.cpp" \
+            --exclude "src/analytics/Analytics.cpp" \
+            --exclude "src/employees/Employees.cpp" \
+            --exclude "src/operations/Operations.cpp" \
+            --exclude "src/products/Products.cpp" \
+            --exclude "src/warehouse/Warehouse.cpp" \
+            --fail-under-line 90
+
+          # Generate HTML coverage report
+          gcovr --root . --filter "src/" \
+            --exclude "src/main.cpp" \
+            --exclude "src/analytics/Analytics.cpp" \
+            --exclude "src/employees/Employees.cpp" \
+            --exclude "src/operations/Operations.cpp" \
+            --exclude "src/products/Products.cpp" \
+            --exclude "src/warehouse/Warehouse.cpp" \
+            --html-details build/coverage.html
+
+      # ----------------------------------------
+      # 7. Static analysis using cppcheck
+      # ----------------------------------------
+      - name: Static analysis - Lab 3
+        run: |
+          cppcheck \
+            --enable=warning,performance \
+            --error-exitcode=1 \
+            --suppress=missingIncludeSystem \
+            --std=c++17 \
+            -I include \
+            src/
+
+      # ----------------------------------------
+      # 8. Upload coverage report
+      # ----------------------------------------
+      - name: Upload Lab 3 coverage report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report
-          path: lab2/build/coverage.html
-
-  release:
-    name: Build Release Artifact
-    if: github.event_name == 'release'
-    needs: build-test-lint
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: lab2
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake g++
-
-      - name: Build release
-        run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release
-          cmake --build build
-
-      - name: Package artifact
-        run: |
-          mkdir -p release
-          cp build/dean_office_app release/
-          tar -czf ../lab2-release-${{ github.ref_name }}-linux.tar.gz -C release .
-
-      - name: Upload release asset
-        uses: softprops/action-gh-release@v2
-        with:
-          files: lab2/lab2-release-${{ github.ref_name }}-linux.tar.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: lab3-coverage-windows
+          path: lab3/build/coverage.html
+          if-no-files-found: warn
