@@ -5,93 +5,12 @@ on:
     branches:
       - main
       - "feature/**"
-    tags:
-      - "v*"
 
   pull_request:
     branches:
       - main
 
-  release:
-    types:
-      - published
-
 jobs:
-
-  # ==========================================
-  # LAB 2 - Dean's Office
-  # ==========================================
-  lab2:
-    name: Lab 2 - Build, Tests, Coverage, Static Analysis
-    runs-on: windows-latest
-
-    defaults:
-      run:
-        working-directory: lab2
-        shell: msys2 {0}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup MSYS2 UCRT64
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: UCRT64
-          update: true
-          install: >-
-            mingw-w64-ucrt-x86_64-gcc
-            mingw-w64-ucrt-x86_64-cmake
-            mingw-w64-ucrt-x86_64-ninja
-            mingw-w64-ucrt-x86_64-cppcheck
-            mingw-w64-ucrt-x86_64-gcovr
-
-      - name: Configure Lab 2
-        run: |
-          cmake -S . -B build \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE=Debug \
-            -DBUILD_TESTING=ON \
-            -DENABLE_COVERAGE=ON
-
-      - name: Build Lab 2
-        run: |
-          cmake --build build
-
-      - name: Run Lab 2 tests
-        run: |
-          ctest --test-dir build --output-on-failure
-
-      - name: Check Lab 2 coverage
-        run: |
-          gcovr --root . \
-            --filter "src/" \
-            --exclude "src/main.cpp" \
-            --fail-under-line 90
-
-          gcovr --root . \
-            --filter "src/" \
-            --exclude "src/main.cpp" \
-            --html-details build/coverage.html
-
-      - name: Static analysis - Lab 2
-        run: |
-          cppcheck \
-            --enable=warning,performance \
-            --error-exitcode=1 \
-            --suppress=missingIncludeSystem \
-            --std=c++17 \
-            -I include \
-            src/
-
-      - name: Upload Lab 2 coverage report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: lab2-coverage-windows
-          path: lab2/build/coverage.html
-          if-no-files-found: warn
-
 
   # ==========================================
   # LAB 3 - Warehouse Management System
@@ -172,36 +91,3 @@ jobs:
           name: lab3-coverage-windows
           path: lab3/build/coverage.html
           if-no-files-found: warn
-
-
-  # ==========================================
-  # RELEASE - Lab 2
-  # ==========================================
-  release:
-    name: Package Lab 2 Release
-    runs-on: windows-latest
-
-    if: github.event_name == 'release'
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Create Lab 2 ZIP
-        shell: pwsh
-        run: |
-          Compress-Archive `
-            -Path lab2\* `
-            -DestinationPath lab2-release.zip `
-            -Force
-
-      - name: Upload release artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: lab2-windows-release
-          path: lab2-release.zip
-
-      - name: Upload ZIP to GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: lab2-release.zip
