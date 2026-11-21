@@ -1,3 +1,4 @@
+
 name: CI
 
 on:
@@ -9,24 +10,33 @@ on:
     types: [published]
 
 jobs:
-  build-test-lint:
-    name: Build, Test, Coverage, Lint
-    runs-on: ubuntu-latest
+  lab2:
+    name: Lab 2 - Windows Build, Tests, Coverage, Lint
+    runs-on: windows-latest
+
     defaults:
       run:
         working-directory: lab2
+        shell: msys2 {0}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake g++ gcovr cppcheck
+      - name: Setup MSYS2 MinGW64
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-cppcheck
+            mingw-w64-x86_64-gcovr
 
-      - name: Configure CMake
-        run: cmake -B build -DBUILD_TESTING=ON -DENABLE_COVERAGE=ON
+      - name: Configure
+        run: cmake -B build -G Ninja -DBUILD_TESTING=ON -DENABLE_COVERAGE=ON
 
       - name: Build
         run: cmake --build build
@@ -34,61 +44,130 @@ jobs:
       - name: Run tests
         run: ctest --test-dir build --output-on-failure
 
-      - name: Check coverage (>=90%)
+      - name: Check coverage
         run: |
-          cd build
-          gcovr --root .. --filter "../src/" --exclude "../src/main.cpp" \
-                --merge-mode-functions=merge-use-line-min \
-                --fail-under-line 90
-          gcovr --root .. --filter "../src/" --exclude "../src/main.cpp" \
-                --merge-mode-functions=merge-use-line-min \
-                --html-details coverage.html
+          gcovr --root . --filter "src/" --exclude "src/main.cpp" --fail-under-line 90
+          gcovr --root . --filter "src/" --exclude "src/main.cpp" --html-details build/coverage.html
 
-      - name: Static analysis (cppcheck)
-        run: |
-          cppcheck --enable=warning,performance --error-exitcode=1 \
-                   --suppress=missingIncludeSystem \
-                   --std=c++17 -I include src/
+      - name: Static analysis
+        run: cppcheck --enable=warning,performance --error-exitcode=1 --suppress=missingIncludeSystem --std=c++17 -I include src/
 
-      - name: Upload coverage report
+      - name: Upload Lab 2 coverage
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report
+          name: lab2-coverage-windows
           path: lab2/build/coverage.html
 
-  release:
-    name: Build Release Artifact
-    if: github.event_name == 'release'
-    needs: build-test-lint
-    runs-on: ubuntu-latest
+  lab3:
+    name: Lab 3 - Windows Build, Tests, Coverage, Lint
+    runs-on: windows-latest
+
     defaults:
       run:
-        working-directory: lab2
+        working-directory: lab3
+        shell: msys2 {0}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake g++
+      - name: Setup MSYS2 MinGW64
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-cppcheck
+            mingw-w64-x86_64-gcovr
 
-      - name: Build release
+      - name: Configure
+        run: cmake -B build -G Ninja -DBUILD_TESTS=ON -DENABLE_COVERAGE=ON
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Check coverage
         run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          gcovr --root . --filter "src/" --exclude "src/main.cpp" --fail-under-line 90
+          gcovr --root . --filter "src/" --exclude "src/main.cpp" --html-details build/coverage.html
+
+      - name: Static analysis
+        run: cppcheck --enable=warning,performance --error-exitcode=1 --suppress=missingIncludeSystem --std=c++17 -I include src/
+
+      - name: Upload Lab 3 coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab3-coverage-windows
+          path: lab3/build/coverage.html
+
+  release:
+    name: Windows Release - Lab 2
+    if: github.event_name == 'release'
+    needs: lab2
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSYS2 MinGW64
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+
+      - name: Build Windows Release
+        shell: msys2 {0}
+        working-directory: lab2
+        run: |
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXE_LINKER_FLAGS="-static"
           cmake --build build
 
-      - name: Package artifact
+      - name: Prepare release folder
+        shell: pwsh
+        working-directory: .
         run: |
-          mkdir -p release
-          cp build/dean_office_app release/
-          tar -czf ../lab2-release-${{ github.ref_name }}-linux.tar.gz -C release .
+          New-Item -ItemType Directory -Force -Path release\lab2 | Out-Null
+          Copy-Item lab2\build\dean_office_app.exe release\lab2\
 
-      - name: Upload release asset
+          @"
+          Dean's Office Application - Windows
+
+          To run:
+          1. Extract this ZIP file.
+          2. Double-click dean_office_app.exe.
+
+          You can also open PowerShell in this folder and run:
+          .\dean_office_app.exe
+          "@ | Set-Content release\lab2\README.txt
+
+      - name: Create Windows ZIP
+        shell: pwsh
+        working-directory: .
+        run: |
+          Compress-Archive -Path release\lab2\* -DestinationPath lab2-windows-release.zip -Force
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab2-windows-release
+          path: lab2-windows-release.zip
+
+      - name: Upload ZIP to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: lab2/lab2-release-${{ github.ref_name }}-linux.tar.gz
+          files: lab2-windows-release.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
