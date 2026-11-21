@@ -1,0 +1,32 @@
+
+### 3. Create `.gitignore` (in the **root** of your repo, next to `.git`)
+*(This prevents you from accidentally committing build files, IDE settings, or compiled binaries to GitHub. If you already have one in the root, just add these lines to it).*
+
+```gitignore
+# Build artifacts
+build/
+out/
+bin/
+obj/
+
+# Coverage files
+*.gcno
+*.gcda
+coverage.info
+coverage_report/
+*.profraw
+*.profdata
+
+# IDE and OS files
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile

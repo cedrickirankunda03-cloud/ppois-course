@@ -1,0 +1,4 @@
+# From the build directory
+lcov --capture --directory . --output-file coverage.info
+lcov --remove coverage.info '/usr/*' '*/tests/*' '*/_deps/*' --output-file coverage_filtered.info
+genhtml coverage_filtered.info --output-directory coverage_report
