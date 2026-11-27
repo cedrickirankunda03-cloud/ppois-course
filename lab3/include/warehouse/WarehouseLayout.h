@@ -10,6 +10,7 @@ class WarehouseLayout {
     std::vector<StorageZone> zones_;
 public:
     explicit WarehouseLayout(std::string layoutName);
+    
         const std::vector<StorageZone>& zones() const noexcept { return zones_; }
     
     void addZone(const StorageZone& zone);

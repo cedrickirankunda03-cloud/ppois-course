@@ -1,0 +1,235 @@
+{
+  "tests": 29,
+  "name": "AllTests",
+  "testsuites": [
+    {
+      "name": "WarehouseTest",
+      "tests": 6,
+      "testsuite": [
+        {
+          "name": "BinCapacityLogic",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_warehouse.cpp",
+          "line": 9
+        },
+        {
+          "name": "CompositionHierarchy",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_warehouse.cpp",
+          "line": 21
+        },
+        {
+          "name": "WarehouseConstructionAndGetters",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_warehouse.cpp",
+          "line": 41
+        },
+        {
+          "name": "HasExistingZoneType",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_warehouse.cpp",
+          "line": 54
+        },
+        {
+          "name": "ReturnsFalseForMissingZoneType",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_warehouse.cpp",
+          "line": 67
+        },
+        {
+          "name": "SupportsMultipleZoneTypes",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_warehouse.cpp",
+          "line": 79
+        }
+      ]
+    },
+    {
+      "name": "ProductsTest",
+      "tests": 2,
+      "testsuite": [
+        {
+          "name": "StockAndBatch",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_products.cpp",
+          "line": 8
+        },
+        {
+          "name": "PurchaseOrderCalculation",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_products.cpp",
+          "line": 19
+        }
+      ]
+    },
+    {
+      "name": "OperationsTest",
+      "tests": 2,
+      "testsuite": [
+        {
+          "name": "OrderFlow",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_operations.cpp",
+          "line": 9
+        },
+        {
+          "name": "ShipmentDispatch",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_operations.cpp",
+          "line": 25
+        }
+      ]
+    },
+    {
+      "name": "EmployeesTest",
+      "tests": 1,
+      "testsuite": [
+        {
+          "name": "PickerRecordsItems",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_employees.cpp",
+          "line": 7
+        }
+      ]
+    },
+    {
+      "name": "SKU",
+      "tests": 2,
+      "testsuite": [
+        {
+          "name": "ValidFormatAccepted",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_core.cpp",
+          "line": 20
+        },
+        {
+          "name": "InvalidFormatRejected",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_core.cpp",
+          "line": 21
+        }
+      ]
+    },
+    {
+      "name": "Barcode",
+      "tests": 1,
+      "testsuite": [
+        {
+          "name": "ChecksumValid",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_core.cpp",
+          "line": 22
+        }
+      ]
+    },
+    {
+      "name": "Money",
+      "tests": 3,
+      "testsuite": [
+        {
+          "name": "Addition",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_core.cpp",
+          "line": 23
+        },
+        {
+          "name": "SubtractionUnderflowThrows",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_core.cpp",
+          "line": 24
+        },
+        {
+          "name": "MultiplicationAndComparison",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_core.cpp",
+          "line": 57
+        }
+      ]
+    },
+    {
+      "name": "Quantity",
+      "tests": 2,
+      "testsuite": [
+        {
+          "name": "UnderflowThrows",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_core.cpp",
+          "line": 25
+        },
+        {
+          "name": "AdditionAndComparison",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_core.cpp",
+          "line": 62
+        }
+      ]
+    },
+    {
+      "name": "Address",
+      "tests": 1,
+      "testsuite": [
+        {
+          "name": "EmptyFieldRejected",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_core.cpp",
+          "line": 26
+        }
+      ]
+    },
+    {
+      "name": "Contact",
+      "tests": 1,
+      "testsuite": [
+        {
+          "name": "InvalidEmailRejected",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_core.cpp",
+          "line": 27
+        }
+      ]
+    },
+    {
+      "name": "Dimensions",
+      "tests": 1,
+      "testsuite": [
+        {
+          "name": "VolumeComputed",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_core.cpp",
+          "line": 28
+        }
+      ]
+    },
+    {
+      "name": "Weight",
+      "tests": 2,
+      "testsuite": [
+        {
+          "name": "Addition",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_core.cpp",
+          "line": 29
+        },
+        {
+          "name": "Multiplication",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_core.cpp",
+          "line": 52
+        }
+      ]
+    },
+    {
+      "name": "DateRange",
+      "tests": 4,
+      "testsuite": [
+        {
+          "name": "ValidRange",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_core.cpp",
+          "line": 32
+        },
+        {
+          "name": "InvertedRangeThrows",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_core.cpp",
+          "line": 37
+        },
+        {
+          "name": "Contains",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_core.cpp",
+          "line": 42
+        },
+        {
+          "name": "LengthInHours",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_core.cpp",
+          "line": 47
+        }
+      ]
+    },
+    {
+      "name": "AnalyticsTest",
+      "tests": 1,
+      "testsuite": [
+        {
+          "name": "InventoryReservation",
+          "file": "C:\/Users\/Cedrick\/OneDrive\/ppois for my labs\/lab3\/tests\/test_analytics.cpp",
+          "line": 9
+        }
+      ]
+    }
+  ]
+}
