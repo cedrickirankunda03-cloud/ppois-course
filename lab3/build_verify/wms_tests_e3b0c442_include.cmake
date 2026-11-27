@@ -1,5 +1,0 @@
-if(EXISTS "C:/Users/Cedrick/OneDrive/ppois for my labs/lab3/build_verify/wms_tests_e3b0c442_tests.cmake")
-  include("C:/Users/Cedrick/OneDrive/ppois for my labs/lab3/build_verify/wms_tests_e3b0c442_tests.cmake")
-else()
-  add_test(wms_tests_NOT_BUILT wms_tests_NOT_BUILT)
-endif()
